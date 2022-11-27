@@ -236,6 +236,7 @@ namespace TextFileEdit
 			
 			for (int lineNumber = firstLine; lineNumber <= lastLine; lineNumber++) {
 				LineSegment lineSegment = this.Document.GetLineSegment(lineNumber);
+				/*
 				if (Document.FoldingManager.IsLineVisible(lineNumber)) {
 					if (lineLengthCache[lineNumber] > 0) {
 						max = Math.Max(max, lineLengthCache[lineNumber]);
@@ -245,6 +246,7 @@ namespace TextFileEdit
 						max = Math.Max(max, visualLength);
 					}
 				}
+				*/
 			}
 			hScrollBar.Minimum = 0;
 			hScrollBar.Maximum = (Math.Max(max + 20, textArea.TextView.VisibleColumnCount - 1));

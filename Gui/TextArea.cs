@@ -55,7 +55,7 @@ namespace TextFileEdit
 		Caret            caret;
 
 		internal Point mousepos = new Point(0, 0);
-		//public Point selectionStartPos = new Point(0,0);
+		
 
 		bool disposed;
 		
@@ -188,9 +188,6 @@ namespace TextFileEdit
 			ResizeRedraw = true;
 			
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-//			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-//			SetStyle(ControlStyles.UserPaint, true);
-			SetStyle(ControlStyles.Opaque, false);
 			SetStyle(ControlStyles.ResizeRedraw, true);
 			SetStyle(ControlStyles.Selectable, true);
 			
@@ -206,64 +203,21 @@ namespace TextFileEdit
 			new TextAreaMouseHandler(this).Attach();
 			new TextAreaDragDropHandler().Attach(this);
 			
-			bracketshemes.Add(new BracketHighlightingSheme('{', '}'));
-			bracketshemes.Add(new BracketHighlightingSheme('(', ')'));
-			bracketshemes.Add(new BracketHighlightingSheme('[', ']'));
 			
-			caret.PositionChanged += new EventHandler(SearchMatchingBracket);
+			//caret.PositionChanged += new EventHandler(SearchMatchingBracket);
 			Document.TextContentChanged += new EventHandler(TextContentChanged);
-			Document.FoldingManager.FoldingsChanged += new EventHandler(DocumentFoldingsChanged);
+			//Document.FoldingManager.FoldingsChanged += new EventHandler(DocumentFoldingsChanged);
 		}
 		
 		public void UpdateMatchingBracket()
 		{
-			SearchMatchingBracket(null, null);
+			//SearchMatchingBracket(null, null);
 		}
 		
 		void TextContentChanged(object sender, EventArgs e)
 		{
 			Caret.Position = new TextLocation(0, 0);
 			SelectionManager.SelectionCollection.Clear();
-		}
-		void SearchMatchingBracket(object sender, EventArgs e)
-		{
-			if (!TextEditorProperties.ShowMatchingBracket) {
-				textView.Highlight = null;
-				return;
-			}
-			int oldLine1 = -1, oldLine2 = -1;
-			if (textView.Highlight != null && textView.Highlight.OpenBrace.Y >=0 && textView.Highlight.OpenBrace.Y < Document.TotalNumberOfLines) {
-				oldLine1 = textView.Highlight.OpenBrace.Y;
-			}
-			if (textView.Highlight != null && textView.Highlight.CloseBrace.Y >=0 && textView.Highlight.CloseBrace.Y < Document.TotalNumberOfLines) {
-				oldLine2 = textView.Highlight.CloseBrace.Y;
-			}
-			textView.Highlight = FindMatchingBracketHighlight();
-			if (oldLine1 >= 0)
-				UpdateLine(oldLine1);
-			if (oldLine2 >= 0 && oldLine2 != oldLine1)
-				UpdateLine(oldLine2);
-			if (textView.Highlight != null) {
-				int newLine1 = textView.Highlight.OpenBrace.Y;
-				int newLine2 = textView.Highlight.CloseBrace.Y;
-				if (newLine1 != oldLine1 && newLine1 != oldLine2)
-					UpdateLine(newLine1);
-				if (newLine2 != oldLine1 && newLine2 != oldLine2 && newLine2 != newLine1)
-					UpdateLine(newLine2);
-			}
-		}
-		
-		public Highlight FindMatchingBracketHighlight()
-		{
-			if (Caret.Offset == 0)
-				return null;
-			foreach (BracketHighlightingSheme bracketsheme in bracketshemes) {
-				Highlight highlight = bracketsheme.GetHighlight(Document, Caret.Offset - 1);
-				if (highlight != null) {
-					return highlight;
-				}
-			}
-			return null;
 		}
 		
 		public void SetDesiredColumn()
@@ -334,59 +288,18 @@ namespace TextFileEdit
 		
 		// static because the mouse can only be in one text area and we don't want to have
 		// tooltips of text areas from inactive tabs floating around.
-		static DeclarationViewWindow toolTip;
-		static string oldToolTip;
 		
-		void SetToolTip(string text, int lineNumber)
-		{
-			if (toolTip == null || toolTip.IsDisposed)
-				toolTip = new DeclarationViewWindow(this.FindForm());
-			if (oldToolTip == text)
-				return;
-			if (text == null) {
-				toolTip.Hide();
-			} else {
-				Point p = Control.MousePosition;
-				Point cp = PointToClient(p);
-				if (lineNumber >= 0) {
-					lineNumber = this.Document.GetVisibleLine(lineNumber);
-					p.Y = (p.Y - cp.Y) + (lineNumber * this.TextView.FontHeight) - this.virtualTop.Y;
-				}
-				p.Offset(3, 3);
-				toolTip.Owner = this.FindForm();
-				toolTip.Location = p;
-				toolTip.Description = text;
-				toolTip.HideOnClick = true;
-				toolTip.Show();
-			}
-			oldToolTip = text;
-		}
 		
-		public event ToolTipRequestEventHandler ToolTipRequest;
-		
-		protected virtual void OnToolTipRequest(ToolTipRequestEventArgs e)
-		{
-			if (ToolTipRequest != null) {
-				ToolTipRequest(this, e);
-			}
-		}
-		
-		bool toolTipActive;
+		//bool toolTipActive;
 		/// <summary>
 		/// Rectangle in text area that caused the current tool tip.
 		/// Prevents tooltip from re-showing when it was closed because of a click or keyboard
 		/// input and the mouse was not used.
 		/// </summary>
-		Rectangle toolTipRectangle;
+		//Rectangle toolTipRectangle;
 		
 		void CloseToolTip()
 		{
-			if (toolTipActive) {
-				//Console.WriteLine("Closing tooltip");
-				toolTipActive = false;
-				SetToolTip(null, -1);
-			}
-			ResetMouseEventArgs();
 		}
 		
 		protected override void OnMouseHover(EventArgs e)
@@ -402,29 +315,6 @@ namespace TextFileEdit
 		
 		protected void RequestToolTip(Point mousePos)
 		{
-			if (toolTipRectangle.Contains(mousePos)) {
-				if (!toolTipActive)
-					ResetMouseEventArgs();
-				return;
-			}
-			
-			//Console.WriteLine("Request tooltip for " + mousePos);
-			
-			toolTipRectangle = new Rectangle(mousePos.X - 4, mousePos.Y - 4, 8, 8);
-			
-			TextLocation logicPos = textView.GetLogicalPosition(mousePos.X - textView.DrawingPosition.Left,
-			                                                    mousePos.Y - textView.DrawingPosition.Top);
-			bool inDocument = textView.DrawingPosition.Contains(mousePos)
-				&& logicPos.Y >= 0 && logicPos.Y < Document.TotalNumberOfLines;
-			ToolTipRequestEventArgs args = new ToolTipRequestEventArgs(mousePos, logicPos, inDocument);
-			OnToolTipRequest(args);
-			if (args.ToolTipShown) {
-				//Console.WriteLine("Set tooltip to " + args.toolTipText);
-				toolTipActive = true;
-				SetToolTip(args.toolTipText, inDocument ? logicPos.Y + 1 : -1);
-			} else {
-				CloseToolTip();
-			}
 		}
 		
 		// external interface to the attached event
@@ -436,11 +326,7 @@ namespace TextFileEdit
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			base.OnMouseMove(e);
-			if (!toolTipRectangle.Contains(e.Location)) {
-				toolTipRectangle = Rectangle.Empty;
-				if (toolTipActive)
-					RequestToolTip(e.Location);
-			}
+	
 			foreach (AbstractMargin margin in leftMargins) {
 				if (margin.DrawingPosition.Contains(e.X, e.Y)) {
 					this.Cursor = margin.Cursor;
@@ -546,16 +432,10 @@ namespace TextFileEdit
 				this.motherTextAreaControl.AdjustScrollBars();
 			}
 			
-			// we cannot update the caret position here, it's not allowed to call the caret API inside WM_PAINT
-			//Caret.UpdateCaretPosition();
-			
 			base.OnPaint(e);
 		}
 		void DocumentFoldingsChanged(object sender, EventArgs e)
 		{
-			Caret.UpdateCaretPosition();
-			Invalidate();
-			this.motherTextAreaControl.AdjustScrollBars();
 		}
 		
 		#region keyboard handling methods
@@ -647,7 +527,7 @@ namespace TextFileEdit
 				
 				int currentLineNr = Caret.Line;
 				Document.FormattingStrategy.FormatLine(this, currentLineNr, Document.PositionToOffset(Caret.Position), ch);
-				
+				//
 				EndUpdate();
 			} finally {
 				Document.UndoStack.EndUndoGroup();
@@ -773,8 +653,6 @@ namespace TextFileEdit
 				UpdateLineToEnd(Caret.Line, Caret.Column);
 			}
 			
-			// I prefer to set NOT the standard column, if you type something
-//			++Caret.DesiredColumn;
 		}
 		
 		/// <remarks>
@@ -845,7 +723,7 @@ namespace TextFileEdit
 				UpdateLineToEnd(lineNr, Caret.Column);
 			}
 			++Caret.Column;
-//			++Caret.DesiredColumn;
+
 		}
 		
 		protected override void Dispose(bool disposing)
@@ -855,14 +733,14 @@ namespace TextFileEdit
 				if (!disposed) {
 					disposed = true;
 					if (caret != null) {
-						caret.PositionChanged -= new EventHandler(SearchMatchingBracket);
+						//caret.PositionChanged -= new EventHandler(SearchMatchingBracket);
 						caret.Dispose();
 					}
 					if (selectionManager != null) {
 						selectionManager.Dispose();
 					}
 					Document.TextContentChanged -= new EventHandler(TextContentChanged);
-					Document.FoldingManager.FoldingsChanged -= new EventHandler(DocumentFoldingsChanged);
+					//Document.FoldingManager.FoldingsChanged -= new EventHandler(DocumentFoldingsChanged);
 					motherTextAreaControl = null;
 					motherTextEditorControl = null;
 					foreach (AbstractMargin margin in leftMargins) {
@@ -888,11 +766,7 @@ namespace TextFileEdit
 		}
 		
 		internal void UpdateToEnd(int lineBegin)
-		{
-//			if (lineBegin > FirstPhysicalLine + textView.VisibleLineCount) {
-//				return;
-//			}
-			
+		{	
 			lineBegin = Document.GetVisibleLine(lineBegin);
 			int y         = Math.Max(    0, (int)(lineBegin * textView.FontHeight));
 			y = Math.Max(0, y - this.virtualTop.Y);
@@ -919,10 +793,6 @@ namespace TextFileEdit
 		}
 		internal void UpdateLines(int xPos, int lineBegin, int lineEnd)
 		{
-//			if (lineEnd < FirstPhysicalLine || lineBegin > FirstPhysicalLine + textView.VisibleLineCount) {
-//				return;
-//			}
-			
 			InvalidateLines((int)(xPos * this.TextView.WideSpaceWidth), lineBegin, lineEnd);
 		}
 		

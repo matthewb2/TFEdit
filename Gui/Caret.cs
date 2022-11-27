@@ -121,10 +121,8 @@ namespace TextFileEdit
 			this.textArea = textArea;
 			textArea.GotFocus  += new EventHandler(GotFocus);
 			textArea.LostFocus += new EventHandler(LostFocus);
-			if (Environment.OSVersion.Platform == PlatformID.Unix)
-				caretImplementation = new ManagedCaret(this);
-			else
-				caretImplementation = new Win32Caret(this);
+			
+			caretImplementation = new Win32Caret(this);
 		}
 		
 		public void Dispose()
@@ -139,6 +137,7 @@ namespace TextFileEdit
 		{
 			int line   = Math.Max(0, Math.Min(textArea.Document.TotalNumberOfLines - 1, pos.Y));
 			int column = Math.Max(0, pos.X);
+			//Console.WriteLine("caret column:" + column);
 			
 			if (column == int.MaxValue || !textArea.TextEditorProperties.AllowCaretBeyondEOL) {
 				LineSegment lineSegment = textArea.Document.GetLineSegment(line);
@@ -251,7 +250,7 @@ namespace TextFileEdit
 
 		public void UpdateCaretPosition()
 		{
-			Log("UpdateCaretPosition");
+			//Log("UpdateCaretPosition");
 			
 			if (textArea.TextEditorProperties.CaretLine) {
 				textArea.Invalidate();
@@ -279,7 +278,7 @@ namespace TextFileEdit
 			ValidateCaretPos();
 			int lineNr = this.line;
 			int xpos = textArea.TextView.GetDrawingXPos(lineNr, this.column);
-			//LineSegment lineSegment = textArea.Document.GetLineSegment(lineNr);
+			
 			Point pos = ScreenPosition;
 			if (xpos >= 0) {
 				CreateCaret();
@@ -334,70 +333,6 @@ namespace TextFileEdit
 				Destroy();
 			}
 		}
-		
-		class ManagedCaret : CaretImplementation
-		{
-			System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 300 };
-			bool visible;
-			bool blink = true;
-			int x, y, width, height;
-			TextArea textArea;
-			Caret parentCaret;
-			
-			public ManagedCaret(Caret caret)
-			{
-				base.RequireRedrawOnPositionChange = true;
-				this.textArea = caret.textArea;
-				this.parentCaret = caret;
-				timer.Tick += CaretTimerTick;
-			}
-			
-			void CaretTimerTick(object sender, EventArgs e)
-			{
-				blink = !blink;
-				if (visible)
-					textArea.UpdateLine(parentCaret.Line);
-			}
-			
-			public override bool Create(int width, int height)
-			{
-				this.visible = true;
-				this.width = width - 2;
-				this.height = height;
-				timer.Enabled = true;
-				return true;
-			}
-			public override void Hide()
-			{
-				visible = false;
-			}
-			public override void Show()
-			{
-				visible = true;
-			}
-			public override bool SetPosition(int x, int y)
-			{
-				this.x = x - 1;
-				this.y = y;
-				return true;
-			}
-			public override void PaintCaret(Graphics g)
-			{
-				if (visible && blink)
-					g.DrawRectangle(Pens.Gray, x, y, width, height);
-			}
-			public override void Destroy()
-			{
-				visible = false;
-				timer.Enabled = false;
-			}
-			public override void Dispose()
-			{
-				base.Dispose();
-				timer.Dispose();
-			}
-		}
-		
 		class Win32Caret : CaretImplementation
 		{
 			[DllImport("User32.dll")]

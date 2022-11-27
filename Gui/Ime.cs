@@ -169,7 +169,7 @@ namespace TextFileEdit
 		
 		void Handle(Exception ex)
 		{
-			Console.WriteLine(ex);
+			//Console.WriteLine(ex);
 			if (!disableIME) {
 				disableIME = true;
 				MessageBox.Show("Error calling IME: " + ex.Message + "\nIME is disabled.", "IME error");

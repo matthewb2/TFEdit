@@ -48,7 +48,7 @@ namespace TextFileEdit
 			textArea.MouseLeave  += new EventHandler(OnMouseLeave);
 			textArea.MouseUp     += new MouseEventHandler(OnMouseUp);
 			textArea.LostFocus   += new EventHandler(TextAreaLostFocus);
-			textArea.ToolTipRequest += new ToolTipRequestEventHandler(OnToolTipRequest);
+			//textArea.ToolTipRequest += new ToolTipRequestEventHandler(OnToolTipRequest);
 		}
 		
 		void OnToolTipRequest(object sender, ToolTipRequestEventArgs e)

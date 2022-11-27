@@ -66,6 +66,7 @@ namespace TextFileEdit
 		
 		public TextEditorControl()
 		{
+			
 			SetStyle(ControlStyles.ContainerControl, true);
 			
 			textAreaPanel.Dock = DockStyle.Fill;
@@ -101,34 +102,6 @@ namespace TextFileEdit
 		
 		public void Split()
 		{
-			if (secondaryTextArea == null) {
-				secondaryTextArea = new TextAreaControl(this);
-				secondaryTextArea.Dock = DockStyle.Bottom;
-				secondaryTextArea.Height = Height / 2;
-				
-				secondaryTextArea.TextArea.GotFocus += delegate {
-					SetActiveTextAreaControl(secondaryTextArea);
-				};
-				
-				textAreaSplitter =  new Splitter();
-				textAreaSplitter.BorderStyle = BorderStyle.FixedSingle ;
-				textAreaSplitter.Height = 8;
-				textAreaSplitter.Dock = DockStyle.Bottom;
-				textAreaPanel.Controls.Add(textAreaSplitter);
-				textAreaPanel.Controls.Add(secondaryTextArea);
-				InitializeTextAreaControl(secondaryTextArea);
-				secondaryTextArea.OptionsChanged();
-			} else {
-				SetActiveTextAreaControl(primaryTextArea);
-				
-				textAreaPanel.Controls.Remove(secondaryTextArea);
-				textAreaPanel.Controls.Remove(textAreaSplitter);
-				
-				secondaryTextArea.Dispose();
-				textAreaSplitter.Dispose();
-				secondaryTextArea = null;
-				textAreaSplitter  = null;
-			}
 		}
 		
 		[Browsable(false)]
@@ -264,10 +237,7 @@ namespace TextFileEdit
 				}
 			}
 			Document.UpdateQueue.Clear();
-//			this.primaryTextArea.TextArea.Update();
-//			if (this.secondaryTextArea != null) {
-//				this.secondaryTextArea.TextArea.Update();
-//			}
+
 		}
 		#endregion
 		
@@ -306,28 +276,20 @@ namespace TextFileEdit
 			float xPos = 0;
 			float yPos = 0;
 			float fontHeight = Font.GetHeight(g);
-//			bool  gotNonWhitespace = false;
+
 			curTabIndent = 0;
 			FontContainer fontContainer = TextEditorProperties.FontContainer;
 			foreach (TextWord word in line.Words) {
 				switch (word.Type) {
 					case TextWordType.Space:
 						Advance(ref xPos, ref yPos, maxWidth, primaryTextArea.TextArea.TextView.SpaceWidth, fontHeight);
-//						if (!gotNonWhitespace) {
-//							curTabIndent = xPos;
-//						}
 						break;
 					case TextWordType.Tab:
 						Advance(ref xPos, ref yPos, maxWidth, TabIndent * primaryTextArea.TextArea.TextView.WideSpaceWidth, fontHeight);
-//						if (!gotNonWhitespace) {
-//							curTabIndent = xPos;
-//						}
+
 						break;
 					case TextWordType.Word:
-//						if (!gotNonWhitespace) {
-//							gotNonWhitespace = true;
-//							curTabIndent    += TabIndent * primaryTextArea.TextArea.TextView.GetWidth(' ');
-//						}
+
 						SizeF drawingSize = g.MeasureString(word.Word, word.GetFont(fontContainer), new SizeF(maxWidth, fontHeight * 100), printingStringFormat);
 						Advance(ref xPos, ref yPos, maxWidth, drawingSize.Width, fontHeight);
 						break;
@@ -359,10 +321,7 @@ namespace TextFileEdit
 //						}
 						break;
 					case TextWordType.Word:
-//						if (!gotNonWhitespace) {
-//							gotNonWhitespace = true;
-//							curTabIndent    += TabIndent * primaryTextArea.TextArea.TextView.GetWidth(' ');
-//						}
+
 						g.DrawString(word.Word, word.GetFont(fontContainer), BrushRegistry.GetBrush(word.Color), xPos + margin.X, yPos);
 						SizeF drawingSize = g.MeasureString(word.Word, word.GetFont(fontContainer), new SizeF(margin.Width, fontHeight * 100), printingStringFormat);
 						Advance(ref xPos, ref yPos, margin.Width, drawingSize.Width, fontHeight);
