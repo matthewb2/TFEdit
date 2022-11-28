@@ -48,8 +48,6 @@ namespace TextFileEdit
 		
 		TextView      textView;
 		GutterMargin  gutterMargin;
-		FoldMargin    foldMargin;
-		IconBarMargin iconBarMargin;
 		
 		SelectionManager selectionManager;
 		Caret            caret;
@@ -108,17 +106,6 @@ namespace TextFileEdit
 			}
 		}
 		
-		public FoldMargin FoldMargin {
-			get {
-				return foldMargin;
-			}
-		}
-		
-		public IconBarMargin IconBarMargin {
-			get {
-				return iconBarMargin;
-			}
-		}
 		
 		public Encoding Encoding {
 			get {
@@ -194,9 +181,9 @@ namespace TextFileEdit
 			textView = new TextView(this);
 			
 			gutterMargin = new GutterMargin(this);
-			foldMargin   = new FoldMargin(this);
-			iconBarMargin = new IconBarMargin(this);
-			leftMargins.AddRange(new AbstractMargin[] { iconBarMargin, gutterMargin, foldMargin });
+			//foldMargin   = new FoldMargin(this);
+			//iconBarMargin = new IconBarMargin(this);
+			leftMargins.AddRange(new AbstractMargin[] { gutterMargin});
 			OptionsChanged();
 			
 			
