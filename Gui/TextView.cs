@@ -556,9 +556,9 @@ namespace TextFileEdit
 		{
 			if (start > end) throw new ArgumentException("start > end");
 			if (start == end) return 0;
-			//float spaceWidth = SpaceWidth;
+			//
 			float drawingPos = 0;
-			//int tabIndent  = Document.TextEditorProperties.TabIndent;
+			//
 			LineSegment currentLine = Document.GetLineSegment(logicalLine);
 			List<TextWord> words = currentLine.Words;
 			if (words == null) return 0;
@@ -581,18 +581,19 @@ namespace TextFileEdit
 			for (int j = currentLine.Length; j < end; j++) {
 				drawingPos += WideSpaceWidth;
 			}
-			// add one pixel in column calculation to account for floating point calculation errors
+			//
 			column += (int)((drawingPos + 1) / WideSpaceWidth);
-			
+			//
 			return drawingPos;
 		}
 		
 		public int GetDrawingXPos(int logicalLine, int logicalColumn)
 		{
+			
 			List<FoldMarker> foldings = Document.FoldingManager.GetTopLevelFoldedFoldings();
 			int i;
 			FoldMarker f = null;
-			// search the last folding that's interresting
+			//
 			for (i = foldings.Count - 1; i >= 0; --i) {
 				f = foldings[i];
 				if (f.StartLine < logicalLine || f.StartLine == logicalLine && f.StartColumn < logicalColumn) {
@@ -603,6 +604,7 @@ namespace TextFileEdit
 					i /= 2;
 				}
 			}
+			
 			int column       = 0;
 			float drawingPos;
 			Graphics g = textArea.CreateGraphics();

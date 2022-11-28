@@ -64,7 +64,7 @@ namespace TextFileEdit
 				return null;
 			}
 		}
-		
+		/*
 		public VScrollBar VScrollBar {
 			get {
 				return vScrollBar;
@@ -76,7 +76,7 @@ namespace TextFileEdit
 				return hScrollBar;
 			}
 		}
-		
+		*/
 		public bool DoHandleMousewheel {
 			get {
 				return doHandleMousewheel;
@@ -93,11 +93,6 @@ namespace TextFileEdit
 			this.textArea                = new TextArea(motherTextEditorControl, this);
 			Controls.Add(textArea);
 			
-			vScrollBar.ValueChanged += new EventHandler(VScrollBarValueChanged);
-			Controls.Add(this.vScrollBar);
-			
-			hScrollBar.ValueChanged += new EventHandler(HScrollBarValueChanged);
-			Controls.Add(this.hScrollBar);
 			ResizeRedraw = true;
 			
 			Document.TextContentChanged += DocumentTextContentChanged;
@@ -114,18 +109,7 @@ namespace TextFileEdit
 					Document.DocumentChanged -= AdjustScrollBarsOnDocumentChange;
 					Document.UpdateCommited  -= DocumentUpdateCommitted;
 					motherTextEditorControl = null;
-					if (vScrollBar != null) {
-						vScrollBar.Dispose();
-						vScrollBar = null;
-					}
-					if (hScrollBar != null) {
-						hScrollBar.Dispose();
-						hScrollBar = null;
-					}
-					if (hRuler != null) {
-						hRuler.Dispose();
-						hRuler = null;
-					}
+					
 				}
 			}
 			base.Dispose(disposing);
@@ -162,26 +146,16 @@ namespace TextFileEdit
 			textArea.Bounds = new Rectangle(0, y,
 			                                Width - SystemInformation.HorizontalScrollBarArrowWidth,
 			                                Height - SystemInformation.VerticalScrollBarArrowHeight - h);
-			SetScrollBarBounds();
+			//SetScrollBarBounds();
 		}
-		
-		public void SetScrollBarBounds()
-		{
-			vScrollBar.Bounds = new Rectangle(textArea.Bounds.Right, 0, SystemInformation.HorizontalScrollBarArrowWidth, Height - SystemInformation.VerticalScrollBarArrowHeight);
-			hScrollBar.Bounds = new Rectangle(0,
-			                                  textArea.Bounds.Bottom,
-			                                  Width - SystemInformation.HorizontalScrollBarArrowWidth,
-			                                  SystemInformation.VerticalScrollBarArrowHeight);
-		}
-		
 		bool adjustScrollBarsOnNextUpdate;
 		Point scrollToPosOnNextUpdate;
 		
 		void AdjustScrollBarsOnDocumentChange(object sender, DocumentEventArgs e)
 		{
 			if (motherTextEditorControl.IsInUpdate == false) {
-				AdjustScrollBarsClearCache();
-				AdjustScrollBars();
+				//AdjustScrollBarsClearCache();
+				//AdjustScrollBars();
 			} else {
 				adjustScrollBarsOnNextUpdate = true;
 			}
@@ -192,13 +166,10 @@ namespace TextFileEdit
 			if (motherTextEditorControl.IsInUpdate == false) {
 				Caret.ValidateCaretPos();
 				
-				// AdjustScrollBarsOnCommittedUpdate
 				if (!scrollToPosOnNextUpdate.IsEmpty) {
 					ScrollTo(scrollToPosOnNextUpdate.Y, scrollToPosOnNextUpdate.X);
 				}
 				if (adjustScrollBarsOnNextUpdate) {
-					AdjustScrollBarsClearCache();
-					AdjustScrollBars();
 				}
 			}
 		}
@@ -221,7 +192,6 @@ namespace TextFileEdit
 		{
 			adjustScrollBarsOnNextUpdate = false;
 			vScrollBar.Minimum = 0;
-			// number of visible lines in document (folding!)
 			vScrollBar.Maximum = textArea.MaxVScrollValue;
 			int max = 0;
 			
@@ -236,26 +206,9 @@ namespace TextFileEdit
 			
 			for (int lineNumber = firstLine; lineNumber <= lastLine; lineNumber++) {
 				LineSegment lineSegment = this.Document.GetLineSegment(lineNumber);
-				/*
-				if (Document.FoldingManager.IsLineVisible(lineNumber)) {
-					if (lineLengthCache[lineNumber] > 0) {
-						max = Math.Max(max, lineLengthCache[lineNumber]);
-					} else {
-						int visualLength = textArea.TextView.GetVisualColumnFast(lineSegment, lineSegment.Length);
-						lineLengthCache[lineNumber] = Math.Max(1, visualLength);
-						max = Math.Max(max, visualLength);
-					}
-				}
-				*/
+				
 			}
-			hScrollBar.Minimum = 0;
-			hScrollBar.Maximum = (Math.Max(max + 20, textArea.TextView.VisibleColumnCount - 1));
 			
-			vScrollBar.LargeChange = Math.Max(0, textArea.TextView.DrawingPosition.Height);
-			vScrollBar.SmallChange = Math.Max(0, textArea.TextView.FontHeight);
-			
-			hScrollBar.LargeChange = Math.Max(0, textArea.TextView.VisibleColumnCount - 1);
-			hScrollBar.SmallChange = Math.Max(0, (int)textArea.TextView.SpaceWidth);
 		}
 		
 		public void OptionsChanged()
@@ -265,16 +218,16 @@ namespace TextFileEdit
 			if (textArea.TextEditorProperties.ShowHorizontalRuler) {
 				if (hRuler == null) {
 					hRuler = new HRuler(textArea);
-					Controls.Add(hRuler);
+					//Controls.Add(hRuler);
 					ResizeTextArea();
 				} else {
 					hRuler.Invalidate();
 				}
 			} else {
 				if (hRuler != null) {
-					Controls.Remove(hRuler);
-					hRuler.Dispose();
-					hRuler = null;
+					//Controls.Remove(hRuler);
+					//hRuler.Dispose();
+					//hRuler = null;
 					ResizeTextArea();
 				}
 			}
@@ -286,7 +239,7 @@ namespace TextFileEdit
 		{
 			textArea.VirtualTop = new Point(textArea.VirtualTop.X, vScrollBar.Value);
 			textArea.Invalidate();
-			AdjustScrollBars();
+			
 		}
 		
 		void HScrollBarValueChanged(object sender, EventArgs e)
@@ -314,7 +267,7 @@ namespace TextFileEdit
 				if (TextEditorProperties.MouseWheelScrollDown)
 					scrollDistance = -scrollDistance;
 				int newValue = vScrollBar.Value + vScrollBar.SmallChange * scrollDistance;
-				vScrollBar.Value = Math.Max(vScrollBar.Minimum, Math.Min(vScrollBar.Maximum - vScrollBar.LargeChange + 1, newValue));
+				//vScrollBar.Value = Math.Max(vScrollBar.Minimum, Math.Min(vScrollBar.Maximum - vScrollBar.LargeChange + 1, newValue));
 			}
 		}
 		
@@ -347,17 +300,6 @@ namespace TextFileEdit
 			
 			int pos = textArea.TextView.GetVisualColumn(line, column);
 			
-			if (textArea.TextView.VisibleColumnCount < 0) {
-				hScrollBar.Value = 0;
-			} else {
-				if (pos < curCharMin) {
-					hScrollBar.Value = (int)(Math.Max(0, pos - scrollMarginHeight));
-				} else {
-					if (pos > curCharMax) {
-						hScrollBar.Value = (int)Math.Max(0, Math.Min(hScrollBar.Maximum, (pos - textArea.TextView.VisibleColumnCount + scrollMarginHeight)));
-					}
-				}
-			}
 		}
 		
 		int scrollMarginHeight  = 3;
@@ -375,8 +317,8 @@ namespace TextFileEdit
 			}
 			
 			if (line - scrollMarginHeight + 3 < curLineMin) {
-				this.vScrollBar.Value =  Math.Max(0, Math.Min(this.vScrollBar.Maximum, (line - scrollMarginHeight + 3) * textArea.TextView.FontHeight)) ;
-				VScrollBarValueChanged(this, EventArgs.Empty);
+				//this.vScrollBar.Value =  Math.Max(0, Math.Min(this.vScrollBar.Maximum, (line - scrollMarginHeight + 3) * textArea.TextView.FontHeight)) ;
+				//VScrollBarValueChanged(this, EventArgs.Empty);
 			} else {
 				int curLineMax = curLineMin + this.textArea.TextView.VisibleLineCount;
 				if (line + scrollMarginHeight - 1 > curLineMax) {
@@ -401,9 +343,7 @@ namespace TextFileEdit
 		public void CenterViewOn(int line, int treshold)
 		{
 			line = Math.Max(0, Math.Min(Document.TotalNumberOfLines - 1, line));
-			// convert line to visible line:
 			line = Document.GetVisibleLine(line);
-			// subtract half the visible line count
 			line -= textArea.TextView.VisibleLineCount / 2;
 			
 			int curLineMin = textArea.TextView.FirstPhysicalLine;
@@ -433,31 +373,13 @@ namespace TextFileEdit
 			ScrollToCaret();
 		}
 		
-		public event MouseEventHandler ShowContextMenu;
-		
 		protected override void WndProc(ref Message m)
 		{
-			if (m.Msg == 0x007B) { // handle WM_CONTEXTMENU
-				if (ShowContextMenu != null) {
-					long lParam = m.LParam.ToInt64();
-					int x = unchecked((short)(lParam & 0xffff));
-					int y = unchecked((short)((lParam & 0xffff0000) >> 16));
-					if (x == -1 && y == -1) {
-						Point pos = Caret.ScreenPosition;
-						ShowContextMenu(this, new MouseEventArgs(MouseButtons.None, 0, pos.X, pos.Y + textArea.TextView.FontHeight, 0));
-					} else {
-						Point pos = PointToClient(new Point(x, y));
-						ShowContextMenu(this, new MouseEventArgs(MouseButtons.Right, 1, pos.X, pos.Y, 0));
-					}
-				}
-			}
 			base.WndProc(ref m);
 		}
 		
 		protected override void OnEnter(EventArgs e)
 		{
-			// SD2-1072 - Make sure the caret line is valid if anyone
-			// has handlers for the Enter event.
 			Caret.ValidateCaretPos();
 			base.OnEnter(e);
 		}

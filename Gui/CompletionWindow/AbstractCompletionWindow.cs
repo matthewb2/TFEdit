@@ -120,8 +120,8 @@ namespace TextFileEdit.Gui.CompletionWindow
 				parentForm.LocationChanged += new EventHandler(this.ParentFormLocationChanged);
 			}
 			
-			control.ActiveTextAreaControl.VScrollBar.ValueChanged     += new EventHandler(ParentFormLocationChanged);
-			control.ActiveTextAreaControl.HScrollBar.ValueChanged     += new EventHandler(ParentFormLocationChanged);
+			//control.ActiveTextAreaControl.VScrollBar.ValueChanged     += new EventHandler(ParentFormLocationChanged);
+			//control.ActiveTextAreaControl.HScrollBar.ValueChanged     += new EventHandler(ParentFormLocationChanged);
 			control.ActiveTextAreaControl.TextArea.DoProcessDialogKey += new DialogKeyProcessor(ProcessTextAreaKey);
 			control.ActiveTextAreaControl.Caret.PositionChanged       += new EventHandler(CaretOffsetChanged);
 			control.ActiveTextAreaControl.TextArea.LostFocus          += new EventHandler(this.TextFileEditLostFocus);
@@ -176,14 +176,14 @@ namespace TextFileEdit.Gui.CompletionWindow
 			foreach (Control c in Controls) {
 				c.MouseMove -= ControlMouseMove;
 			}
-			
+			/*
 			if (control.ActiveTextAreaControl.VScrollBar != null) {
 				control.ActiveTextAreaControl.VScrollBar.ValueChanged -= new EventHandler(ParentFormLocationChanged);
 			}
 			if (control.ActiveTextAreaControl.HScrollBar != null) {
 				control.ActiveTextAreaControl.HScrollBar.ValueChanged -= new EventHandler(ParentFormLocationChanged);
 			}
-			
+			*/
 			control.ActiveTextAreaControl.TextArea.LostFocus          -= new EventHandler(this.TextFileEditLostFocus);
 			control.ActiveTextAreaControl.Caret.PositionChanged       -= new EventHandler(CaretOffsetChanged);
 			control.ActiveTextAreaControl.TextArea.DoProcessDialogKey -= new DialogKeyProcessor(ProcessTextAreaKey);

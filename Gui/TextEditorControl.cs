@@ -29,19 +29,7 @@ namespace TextFileEdit
 		Splitter        textAreaSplitter  = null;
 		TextAreaControl secondaryTextArea = null;
 		
-		PrintDocument   printDocument = null;
 		
-		[Browsable(false)]
-		public PrintDocument PrintDocument {
-			get {
-				if (printDocument == null) {
-					printDocument = new PrintDocument();
-					printDocument.BeginPrint += new PrintEventHandler(this.BeginPrint);
-					printDocument.PrintPage  += new PrintPageEventHandler(this.PrintPage);
-				}
-				return printDocument;
-			}
-		}
 		
 		TextAreaControl activeTextAreaControl;
 		
@@ -66,7 +54,7 @@ namespace TextFileEdit
 		
 		public TextEditorControl()
 		{
-			
+			//
 			SetStyle(ControlStyles.ContainerControl, true);
 			
 			textAreaPanel.Dock = DockStyle.Fill;
@@ -79,7 +67,15 @@ namespace TextFileEdit
 			primaryTextArea.TextArea.GotFocus += delegate {
 				SetActiveTextAreaControl(primaryTextArea);
 			};
-			primaryTextArea.Dock = DockStyle.Fill;
+			//
+			//primaryTextArea.Dock = DockStyle.Fill;
+			//set primary area center
+			primaryTextArea.Size = new Size(500, 300);
+			primaryTextArea.Location = new Point(this.ClientSize.Width/2 - primaryTextArea.Size.Width/2,
+				10
+				);
+			primaryTextArea.Anchor = System.Windows.Forms.AnchorStyles.Top;
+			//
 			textAreaPanel.Controls.Add(primaryTextArea);
 			InitializeTextAreaControl(primaryTextArea);
 			Controls.Add(textAreaPanel);
@@ -162,11 +158,6 @@ namespace TextFileEdit
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing) {
-				if (printDocument != null) {
-					printDocument.BeginPrint -= new PrintEventHandler(this.BeginPrint);
-					printDocument.PrintPage  -= new PrintPageEventHandler(this.PrintPage);
-					printDocument = null;
-				}
 				Document.UndoStack.ClearAll();
 				Document.UpdateCommited -= new EventHandler(CommitUpdateRequested);
 				if (textAreaPanel != null) {
@@ -251,12 +242,11 @@ namespace TextFileEdit
 			curLineNr = 0;
 			printingStringFormat = (StringFormat)System.Drawing.StringFormat.GenericTypographic.Clone();
 			
-			// 100 should be enough for everyone ...err ?
 			float[] tabStops = new float[100];
 			for (int i = 0; i < tabStops.Length; ++i) {
 				tabStops[i] = TabIndent * primaryTextArea.TextArea.TextView.WideSpaceWidth;
 			}
-			
+			//
 			printingStringFormat.SetTabStops(0, tabStops);
 		}
 		
@@ -270,7 +260,6 @@ namespace TextFileEdit
 			}
 		}
 		
-		// btw. I hate source code duplication ... but this time I don't care !!!!
 		float MeasurePrintingHeight(Graphics g, LineSegment line, float maxWidth)
 		{
 			float xPos = 0;
@@ -284,12 +273,7 @@ namespace TextFileEdit
 					case TextWordType.Space:
 						Advance(ref xPos, ref yPos, maxWidth, primaryTextArea.TextArea.TextView.SpaceWidth, fontHeight);
 						break;
-					case TextWordType.Tab:
-						Advance(ref xPos, ref yPos, maxWidth, TabIndent * primaryTextArea.TextArea.TextView.WideSpaceWidth, fontHeight);
-
-						break;
 					case TextWordType.Word:
-
 						SizeF drawingSize = g.MeasureString(word.Word, word.GetFont(fontContainer), new SizeF(maxWidth, fontHeight * 100), printingStringFormat);
 						Advance(ref xPos, ref yPos, maxWidth, drawingSize.Width, fontHeight);
 						break;
@@ -302,7 +286,7 @@ namespace TextFileEdit
 		{
 			float xPos = 0;
 			float fontHeight = Font.GetHeight(g);
-//			bool  gotNonWhitespace = false;
+
 			curTabIndent = 0 ;
 			
 			FontContainer fontContainer = TextEditorProperties.FontContainer;
@@ -310,15 +294,6 @@ namespace TextFileEdit
 				switch (word.Type) {
 					case TextWordType.Space:
 						Advance(ref xPos, ref yPos, margin.Width, primaryTextArea.TextArea.TextView.SpaceWidth, fontHeight);
-//						if (!gotNonWhitespace) {
-//							curTabIndent = xPos;
-//						}
-						break;
-					case TextWordType.Tab:
-						Advance(ref xPos, ref yPos, margin.Width, TabIndent * primaryTextArea.TextArea.TextView.WideSpaceWidth, fontHeight);
-//						if (!gotNonWhitespace) {
-//							curTabIndent = xPos;
-//						}
 						break;
 					case TextWordType.Word:
 

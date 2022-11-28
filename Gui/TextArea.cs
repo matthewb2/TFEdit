@@ -126,7 +126,7 @@ namespace TextFileEdit
 				Point newVirtualTop = new Point(value.X, Math.Min(MaxVScrollValue, Math.Max(0, value.Y)));
 				if (virtualTop != newVirtualTop) {
 					virtualTop = newVirtualTop;
-					motherTextAreaControl.VScrollBar.Value = virtualTop.Y;
+					
 					Invalidate();
 				}
 				caret.UpdateCaretPosition();
@@ -181,24 +181,18 @@ namespace TextFileEdit
 			textView = new TextView(this);
 			
 			gutterMargin = new GutterMargin(this);
-			//foldMargin   = new FoldMargin(this);
-			//iconBarMargin = new IconBarMargin(this);
 			leftMargins.AddRange(new AbstractMargin[] { gutterMargin});
 			OptionsChanged();
 			
-			
 			new TextAreaMouseHandler(this).Attach();
-			new TextAreaDragDropHandler().Attach(this);
 			
-			
-			//caret.PositionChanged += new EventHandler(SearchMatchingBracket);
 			Document.TextContentChanged += new EventHandler(TextContentChanged);
-			//Document.FoldingManager.FoldingsChanged += new EventHandler(DocumentFoldingsChanged);
+			
 		}
 		
 		public void UpdateMatchingBracket()
 		{
-			//SearchMatchingBracket(null, null);
+			
 		}
 		
 		void TextContentChanged(object sender, EventArgs e)
@@ -220,7 +214,6 @@ namespace TextFileEdit
 		
 		public void OptionsChanged()
 		{
-			UpdateMatchingBracket();
 			textView.OptionsChanged();
 			caret.RecreateCaret();
 			caret.UpdateCaretPosition();
@@ -242,10 +235,6 @@ namespace TextFileEdit
 		
 		protected override void OnMouseDown(System.Windows.Forms.MouseEventArgs e)
 		{
-			// this corrects weird problems when text is selected,
-			// then a menu item is selected, then the text is
-			// clicked again - it correctly synchronises the
-			// click position
 			mousepos = new Point(e.X, e.Y);
 
 			base.OnMouseDown(e);
@@ -273,9 +262,6 @@ namespace TextFileEdit
 		}
 		
 		
-		// static because the mouse can only be in one text area and we don't want to have
-		// tooltips of text areas from inactive tabs floating around.
-		
 		
 		//bool toolTipActive;
 		/// <summary>
@@ -292,7 +278,7 @@ namespace TextFileEdit
 		protected override void OnMouseHover(EventArgs e)
 		{
 			base.OnMouseHover(e);
-			//Console.WriteLine("Hover raised at " + PointToClient(Control.MousePosition));
+			
 			if (MouseButtons == MouseButtons.None) {
 				RequestToolTip(PointToClient(Control.MousePosition));
 			} else {
@@ -373,7 +359,7 @@ namespace TextFileEdit
 			
 			if (updateMargin != null) {
 				updateMargin.Paint(g, updateMargin.DrawingPosition);
-//				clipRectangle.Intersect(updateMargin.DrawingPosition);
+
 			}
 			
 			if (clipRectangle.Width <= 0 || clipRectangle.Height <= 0) {
@@ -384,7 +370,6 @@ namespace TextFileEdit
 				if (margin.IsVisible) {
 					Rectangle marginRectangle = new Rectangle(currentXPos , currentYPos, margin.Size.Width, Height - currentYPos);
 					if (marginRectangle != margin.DrawingPosition) {
-						// margin changed size
 						if (!isFullRepaint && !clipRectangle.Contains(marginRectangle)) {
 							Invalidate(); // do a full repaint
 						}
@@ -400,12 +385,15 @@ namespace TextFileEdit
 					}
 				}
 			}
-			
+			Console.WriteLine("current: " + currentXPos+" "+currentYPos);
+			Console.WriteLine("Width: "+Width+ " Height: " + Height);
+			//
 			Rectangle textViewArea = new Rectangle(currentXPos, currentYPos, Width - currentXPos, Height - currentYPos);
 			if (textViewArea != textView.DrawingPosition) {
 				adjustScrollBars = true;
 				textView.DrawingPosition = textViewArea;
-				// update caret position (but outside of WM_PAINT!)
+				Console.WriteLine("update drawingPosition in textView");
+				//
 				BeginInvoke((MethodInvoker)caret.UpdateCaretPosition);
 			}
 			if (clipRectangle.IntersectsWith(textViewArea)) {
@@ -538,7 +526,6 @@ namespace TextFileEdit
 				return true;
 			}
 			
-			// if not (or the process was 'silent', use the standard edit actions
 			IEditAction action =  motherTextEditorControl.GetEditAction(keyData);
 			AutoClearSelection = true;
 			if (action != null) {
@@ -611,8 +598,6 @@ namespace TextFileEdit
 			if (!updating) {
 				BeginUpdate();
 			}
-			
-			// filter out forgein whitespace chars and replace them with standard space (ASCII 32)
 			if (Char.IsWhiteSpace(ch) && ch != '\t' && ch != '\n') {
 				ch = ' ';
 			}
@@ -625,7 +610,6 @@ namespace TextFileEdit
 			}
 			LineSegment caretLine = Document.GetLineSegment(Caret.Line);
 			int offset = Caret.Offset;
-			// use desired column for generated whitespaces
 			int dc = Caret.Column;
 			if (caretLine.Length < dc && ch != '\n') {
 				Document.Insert(offset, GenerateWhitespaceString(dc - caretLine.Length) + ch);
@@ -720,14 +704,13 @@ namespace TextFileEdit
 				if (!disposed) {
 					disposed = true;
 					if (caret != null) {
-						//caret.PositionChanged -= new EventHandler(SearchMatchingBracket);
 						caret.Dispose();
 					}
 					if (selectionManager != null) {
 						selectionManager.Dispose();
 					}
 					Document.TextContentChanged -= new EventHandler(TextContentChanged);
-					//Document.FoldingManager.FoldingsChanged -= new EventHandler(DocumentFoldingsChanged);
+				
 					motherTextAreaControl = null;
 					motherTextEditorControl = null;
 					foreach (AbstractMargin margin in leftMargins) {
@@ -757,10 +740,7 @@ namespace TextFileEdit
 			lineBegin = Document.GetVisibleLine(lineBegin);
 			int y         = Math.Max(    0, (int)(lineBegin * textView.FontHeight));
 			y = Math.Max(0, y - this.virtualTop.Y);
-			Rectangle r = new Rectangle(0,
-			                            y,
-			                            Width,
-			                            Height - y);
+			Rectangle r = new Rectangle(0,y,Width, Height - y);
 			Invalidate(r);
 		}
 		
@@ -790,10 +770,8 @@ namespace TextFileEdit
 			int y         = Math.Max(    0, (int)(lineBegin  * textView.FontHeight));
 			int height    = Math.Min(textView.DrawingPosition.Height, (int)((1 + lineEnd - lineBegin) * (textView.FontHeight + 1)));
 			
-			Rectangle r = new Rectangle(0,
-			                            y - 1 - this.virtualTop.Y,
-			                            Width,
-			                            height + 3);
+			Rectangle r = new Rectangle(0, y - 1 - this.virtualTop.Y,
+			                            Width, height + 3);
 			
 			Invalidate(r);
 		}
@@ -801,6 +779,5 @@ namespace TextFileEdit
 		public event KeyEventHandler    KeyEventHandler;
 		public event DialogKeyProcessor DoProcessDialogKey;
 		
-		//internal void
 	}
 }
