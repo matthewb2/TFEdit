@@ -26,10 +26,7 @@ namespace TextFileEdit
 	{
 		protected Panel textAreaPanel     = new Panel();
 		TextAreaControl primaryTextArea;
-		//Splitter        textAreaSplitter  = null;
-		TextAreaControl secondaryTextArea = null;
-		
-		
+		//TextAreaControl secondaryTextArea = null;
 		
 		TextAreaControl activeTextAreaControl;
 		
@@ -93,9 +90,7 @@ namespace TextFileEdit
 		public override void OptionsChanged()
 		{
 			primaryTextArea.OptionsChanged();
-			if (secondaryTextArea != null) {
-				secondaryTextArea.OptionsChanged();
-			}
+			
 		}
 		
 		
@@ -124,9 +119,7 @@ namespace TextFileEdit
 				
 				Document.RequestUpdate(new TextAreaUpdate(TextAreaUpdateType.WholeTextArea));
 				this.primaryTextArea.TextArea.UpdateMatchingBracket();
-				if (secondaryTextArea != null) {
-					this.secondaryTextArea.TextArea.UpdateMatchingBracket();
-				}
+				
 				EndUpdate();
 			}
 		}
@@ -142,9 +135,7 @@ namespace TextFileEdit
 				
 				Document.RequestUpdate(new TextAreaUpdate(TextAreaUpdateType.WholeTextArea));
 				this.primaryTextArea.TextArea.UpdateMatchingBracket();
-				if (secondaryTextArea != null) {
-					this.secondaryTextArea.TextArea.UpdateMatchingBracket();
-				}
+				
 				EndUpdate();
 			}
 		}

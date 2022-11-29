@@ -21,20 +21,10 @@ namespace TextFileEdit
 	public class TextView : AbstractMargin, IDisposable
 	{
 		int          fontHeight;
-		Highlight    highlight;
-		
+
 		public void Dispose()
 		{
 			measureCache.Clear();
-		}
-		
-		public Highlight Highlight {
-			get {
-				return highlight;
-			}
-			set {
-				highlight = value;
-			}
 		}
 		
 		public int FirstPhysicalLine {
@@ -94,7 +84,6 @@ namespace TextFileEdit
 		static int GetFontHeight(Font font)
 		{
 			int height1 = TextRenderer.MeasureText("_", font).Height;
-			Console.WriteLine("font height:" + height1);
 			//
 			int height2 = (int)Math.Ceiling(font.GetHeight());
 			return Math.Max(height1, height2) + 1;
@@ -142,10 +131,7 @@ namespace TextFileEdit
 			if (rect.Width <= 0 || rect.Height <= 0) {
 				return;
 			}
-			//
-			Console.WriteLine(DrawingPosition.X + " " + DrawingPosition.Y + " " + DrawingPosition.Height);
-			Console.WriteLine(DrawingPosition.Left + " " + DrawingPosition.Right + " " + DrawingPosition.Bottom);
-
+			
 			// Just to ensure that fontHeight and char widths are always correct...
 			if (lastFont != TextEditorProperties.FontContainer.RegularFont) {
 				OptionsChanged();
@@ -189,6 +175,12 @@ namespace TextFileEdit
 				bool  selectionBeyondEOL = selectionRange.EndColumn > currentLine.Length || ColumnRange.WholeColumn.Equals(selectionRange);
 				Brush fillBrush = selectionBeyondEOL && TextEditorProperties.AllowCaretBeyondEOL ? bgColorBrush : backgroundBrush;
 				g.FillRectangle(fillBrush, new RectangleF(physicalXPos, lineRectangle.Y, lineRectangle.Width - physicalXPos + lineRectangle.X, lineRectangle.Height));
+				Console.WriteLine("line:" + lineRectangle.Y);
+				if (lineRectangle.Y > 100 && lineRectangle.Y < 140)
+                {
+					//
+					g.DrawLine(new Pen(Color.Black, 1), new Point(0, lineRectangle.Y), new Point(lineRectangle.X+lineRectangle.Width, lineRectangle.Y));
+				}
 			}
 		}
 		
@@ -212,6 +204,7 @@ namespace TextFileEdit
 		/// <returns>The Brush or null when no marker was found.</returns>
 		Brush GetMarkerBrushAt(int offset, int length, ref Color foreColor, out IList<TextMarker> markers)
 		{
+			
 			markers = Document.MarkerStrategy.GetMarkers(offset, length);
 			foreach (TextMarker marker in markers) {
 				if (marker.TextMarkerType == TextMarkerType.SolidBlock) {
@@ -221,6 +214,7 @@ namespace TextFileEdit
 					return BrushRegistry.GetBrush(marker.Color);
 				}
 			}
+			
 			return null;
 		}
 		
@@ -251,7 +245,9 @@ namespace TextFileEdit
 				Color wordForeColor = currentWord.Color;
 				
 				Brush wordBackBrush = GetMarkerBrushAt(currentLine.Offset + currentWordOffset, currentWord.Length, ref wordForeColor, out markers);
-				
+				Console.WriteLine(wordBackBrush.ToString());
+				//Console.WriteLine("line:" + lineRectangle.Y);
+
 				int wordWidth = DrawDocumentWord(g,
 												 currentWord.Word,
 												 new Point(physicalXPos, lineRectangle.Y),
@@ -291,7 +287,7 @@ namespace TextFileEdit
 			}
 			int wordWidth = MeasureStringWidth(g, word, font);
 			g.FillRectangle(backBrush, new RectangleF(position.X, position.Y, wordWidth + 1, FontHeight));
-			//
+			
 			DrawString(g,
 			           word,
 			           font,

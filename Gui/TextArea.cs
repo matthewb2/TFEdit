@@ -54,7 +54,6 @@ namespace TextFileEdit
 
 		internal Point mousepos = new Point(0, 0);
 		
-
 		bool disposed;
 		
 		[Browsable(false)]
@@ -105,7 +104,6 @@ namespace TextFileEdit
 				return gutterMargin;
 			}
 		}
-		
 		
 		public Encoding Encoding {
 			get {
@@ -230,7 +228,7 @@ namespace TextFileEdit
 				lastMouseInMargin.HandleMouseLeave(EventArgs.Empty);
 				lastMouseInMargin = null;
 			}
-			CloseToolTip();
+			//CloseToolTip();
 		}
 		
 		protected override void OnMouseDown(System.Windows.Forms.MouseEventArgs e)
@@ -238,7 +236,7 @@ namespace TextFileEdit
 			mousepos = new Point(e.X, e.Y);
 
 			base.OnMouseDown(e);
-			CloseToolTip();
+			//CloseToolTip();
 			
 			foreach (AbstractMargin margin in leftMargins) {
 				if (margin.DrawingPosition.Contains(e.X, e.Y)) {
@@ -282,7 +280,7 @@ namespace TextFileEdit
 			if (MouseButtons == MouseButtons.None) {
 				RequestToolTip(PointToClient(Control.MousePosition));
 			} else {
-				CloseToolTip();
+				//CloseToolTip();
 			}
 		}
 		
@@ -340,16 +338,14 @@ namespace TextFileEdit
 			updateMargin = null;
 		}
 		
-		protected override void OnPaintBackground(System.Windows.Forms.PaintEventArgs pevent)
-		{
-		}
 		
 		protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
 		{
 			int currentXPos = 0;
 			int currentYPos = 0;
 			bool adjustScrollBars = false;
-			Graphics  g             = e.Graphics;
+			Graphics  g = e.Graphics;
+			//
 			Rectangle clipRectangle = e.ClipRectangle;
 			
 			bool isFullRepaint = clipRectangle.X == 0 && clipRectangle.Y == 0
@@ -385,14 +381,11 @@ namespace TextFileEdit
 					}
 				}
 			}
-			Console.WriteLine("current: " + currentXPos+" "+currentYPos);
-			Console.WriteLine("Width: "+Width+ " Height: " + Height);
 			//
 			Rectangle textViewArea = new Rectangle(currentXPos, currentYPos, Width - currentXPos, Height - currentYPos);
 			if (textViewArea != textView.DrawingPosition) {
 				adjustScrollBars = true;
 				textView.DrawingPosition = textViewArea;
-				Console.WriteLine("update drawingPosition in textView");
 				//
 				BeginInvoke((MethodInvoker)caret.UpdateCaretPosition);
 			}
@@ -403,14 +396,7 @@ namespace TextFileEdit
 				}
 			}
 			
-			if (adjustScrollBars) {
-				this.motherTextAreaControl.AdjustScrollBars();
-			}
-			
 			base.OnPaint(e);
-		}
-		void DocumentFoldingsChanged(object sender, EventArgs e)
-		{
 		}
 		
 		#region keyboard handling methods
@@ -430,11 +416,6 @@ namespace TextFileEdit
 			return false;
 		}
 		
-		// Fixes SD2-747: Form containing the text editor and a button with a shortcut
-		protected override bool IsInputChar(char charCode)
-		{
-			return true;
-		}
 		
 		internal bool IsReadOnly(int offset)
 		{
@@ -480,7 +461,7 @@ namespace TextFileEdit
 					Cursor.Hide();
 				}
 			}
-			CloseToolTip();
+			//CloseToolTip();
 			
 			BeginUpdate();
 			Document.UndoStack.StartUndoGroup();
@@ -557,11 +538,6 @@ namespace TextFileEdit
 		public void ScrollToCaret()
 		{
 			motherTextAreaControl.ScrollToCaret();
-		}
-		
-		public void ScrollTo(int line)
-		{
-			motherTextAreaControl.ScrollTo(line);
 		}
 		
 		public void BeginUpdate()

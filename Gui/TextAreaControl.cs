@@ -83,7 +83,6 @@ namespace TextFileEdit
 			ResizeRedraw = true;
 			
 			Document.TextContentChanged += DocumentTextContentChanged;
-			Document.DocumentChanged += AdjustScrollBarsOnDocumentChange;
 			Document.UpdateCommited  += DocumentUpdateCommitted;
 		}
 		
@@ -132,7 +131,7 @@ namespace TextFileEdit
 			                                Height - SystemInformation.VerticalScrollBarArrowHeight - h);
 			
 		}
-		bool adjustScrollBarsOnNextUpdate;
+		//bool adjustScrollBarsOnNextUpdate;
 		Point scrollToPosOnNextUpdate;
 		
 		void AdjustScrollBarsOnDocumentChange(object sender, DocumentEventArgs e)
@@ -140,7 +139,7 @@ namespace TextFileEdit
 			if (motherTextEditorControl.IsInUpdate == false) {
 			
 			} else {
-				adjustScrollBarsOnNextUpdate = true;
+			//	adjustScrollBarsOnNextUpdate = true;
 			}
 		}
 		
@@ -152,32 +151,15 @@ namespace TextFileEdit
 				if (!scrollToPosOnNextUpdate.IsEmpty) {
 					ScrollTo(scrollToPosOnNextUpdate.Y, scrollToPosOnNextUpdate.X);
 				}
-				if (adjustScrollBarsOnNextUpdate) {
-				}
 			}
 		}
 		
 		int[] lineLengthCache;
 		const int LineLengthCacheAdditionalSize = 100;
 		
-		void AdjustScrollBarsClearCache()
-		{
-			if (lineLengthCache != null) {
-				if (lineLengthCache.Length < this.Document.TotalNumberOfLines + 2 * LineLengthCacheAdditionalSize) {
-					lineLengthCache = null;
-				} else {
-					Array.Clear(lineLengthCache, 0, lineLengthCache.Length);
-				}
-			}
-		}
-		
 		public void AdjustScrollBars()
 		{
-			adjustScrollBarsOnNextUpdate = false;
-			vScrollBar.Minimum = 0;
-			vScrollBar.Maximum = textArea.MaxVScrollValue;
-			//int max = 0;
-			
+		
 			int firstLine = textArea.TextView.FirstVisibleLine;
 			int lastLine = this.Document.GetFirstLogicalLine(textArea.TextView.FirstPhysicalLine + textArea.TextView.VisibleLineCount);
 			if (lastLine >= this.Document.TotalNumberOfLines)
@@ -197,25 +179,8 @@ namespace TextFileEdit
 		public void OptionsChanged()
 		{
 			textArea.OptionsChanged();
+				
 			
-			if (textArea.TextEditorProperties.ShowHorizontalRuler) {
-				if (hRuler == null) {
-					hRuler = new HRuler(textArea);
-					//Controls.Add(hRuler);
-					ResizeTextArea();
-				} else {
-					hRuler.Invalidate();
-				}
-			} else {
-				if (hRuler != null) {
-					//Controls.Remove(hRuler);
-					//hRuler.Dispose();
-					//hRuler = null;
-					ResizeTextArea();
-				}
-			}
-			
-			AdjustScrollBars();
 		}
 		
 		void VScrollBarValueChanged(object sender, EventArgs e)
@@ -223,12 +188,6 @@ namespace TextFileEdit
 			textArea.VirtualTop = new Point(textArea.VirtualTop.X, vScrollBar.Value);
 			textArea.Invalidate();
 			
-		}
-		
-		void HScrollBarValueChanged(object sender, EventArgs e)
-		{
-			textArea.VirtualTop = new Point(hScrollBar.Value * textArea.TextView.WideSpaceWidth, textArea.VirtualTop.Y);
-			textArea.Invalidate();
 		}
 		
 		Util.MouseWheelHandler mouseWheelHandler = new Util.MouseWheelHandler();
@@ -277,12 +236,7 @@ namespace TextFileEdit
 			}
 			
 			ScrollTo(line);
-			
-			int curCharMin  = (int)(this.hScrollBar.Value - this.hScrollBar.Minimum);
-			int curCharMax  = curCharMin + textArea.TextView.VisibleColumnCount;
-			
-			int pos = textArea.TextView.GetVisualColumn(line, column);
-			
+						
 		}
 		
 		int scrollMarginHeight  = 3;
@@ -299,21 +253,6 @@ namespace TextFileEdit
 				curLineMin ++;
 			}
 			
-			if (line - scrollMarginHeight + 3 < curLineMin) {
-				//this.vScrollBar.Value =  Math.Max(0, Math.Min(this.vScrollBar.Maximum, (line - scrollMarginHeight + 3) * textArea.TextView.FontHeight)) ;
-				//VScrollBarValueChanged(this, EventArgs.Empty);
-			} else {
-				int curLineMax = curLineMin + this.textArea.TextView.VisibleLineCount;
-				if (line + scrollMarginHeight - 1 > curLineMax) {
-					if (this.textArea.TextView.VisibleLineCount == 1) {
-						this.vScrollBar.Value =  Math.Max(0, Math.Min(this.vScrollBar.Maximum, (line - scrollMarginHeight - 1) * textArea.TextView.FontHeight)) ;
-					} else {
-						this.vScrollBar.Value = Math.Min(this.vScrollBar.Maximum,
-						                                 (line - this.textArea.TextView.VisibleLineCount + scrollMarginHeight - 1)* textArea.TextView.FontHeight) ;
-					}
-					VScrollBarValueChanged(this, EventArgs.Empty);
-				}
-			}
 		}
 		
 		/// <summary>
@@ -336,7 +275,7 @@ namespace TextFileEdit
 			if (Math.Abs(curLineMin - line) > treshold) {
 				// scroll:
 				this.vScrollBar.Value =  Math.Max(0, Math.Min(this.vScrollBar.Maximum, (line - scrollMarginHeight + 3) * textArea.TextView.FontHeight)) ;
-				VScrollBarValueChanged(this, EventArgs.Empty);
+			
 			}
 		}
 		

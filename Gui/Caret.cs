@@ -183,7 +183,7 @@ namespace TextFileEdit
 		
 		public void RecreateCaret()
 		{
-			Log("RecreateCaret");
+			//Log("RecreateCaret");
 			DisposeCaret();
 			if (!hidden) {
 				CreateCaret();
@@ -250,8 +250,7 @@ namespace TextFileEdit
 
 		public void UpdateCaretPosition()
 		{
-			//Log("UpdateCaretPosition");
-			
+						
 			if (textArea.TextEditorProperties.CaretLine) {
 				textArea.Invalidate();
 			} else {
