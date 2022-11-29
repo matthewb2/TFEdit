@@ -26,7 +26,7 @@ namespace TextFileEdit
 	{
 		protected Panel textAreaPanel     = new Panel();
 		TextAreaControl primaryTextArea;
-		Splitter        textAreaSplitter  = null;
+		//Splitter        textAreaSplitter  = null;
 		TextAreaControl secondaryTextArea = null;
 		
 		
@@ -57,36 +57,38 @@ namespace TextFileEdit
 			//
 			SetStyle(ControlStyles.ContainerControl, true);
 			
-			textAreaPanel.Dock = DockStyle.Fill;
+			//textAreaPanel.Dock = DockStyle.Fill;
 			
 			Document = (new DocumentFactory()).CreateDocument();
 			Document.HighlightingStrategy = HighlightingStrategyFactory.CreateHighlightingStrategy();
 			
 			primaryTextArea  = new TextAreaControl(this);
+			
 			activeTextAreaControl = primaryTextArea;
+			
 			primaryTextArea.TextArea.GotFocus += delegate {
 				SetActiveTextAreaControl(primaryTextArea);
 			};
 			//
-			//primaryTextArea.Dock = DockStyle.Fill;
-			//set primary area center
-			primaryTextArea.Size = new Size(500, 300);
-			primaryTextArea.Location = new Point(this.ClientSize.Width/2 - primaryTextArea.Size.Width/2,
-				10
-				);
-			primaryTextArea.Anchor = System.Windows.Forms.AnchorStyles.Top;
-			//
+			primaryTextArea.Dock = DockStyle.Fill;
 			textAreaPanel.Controls.Add(primaryTextArea);
-			InitializeTextAreaControl(primaryTextArea);
+			//
+			textAreaPanel.Size = new Size(500, 400);
+			textAreaPanel.Anchor = System.Windows.Forms.AnchorStyles.Top;
+			textAreaPanel.Location = new Point(this.ClientSize.Width / 2 - textAreaPanel.Size.Width / 2, 10);
+			
 			Controls.Add(textAreaPanel);
 			ResizeRedraw = true;
+			
 			Document.UpdateCommited += new EventHandler(CommitUpdateRequested);
+			
 			OptionsChanged();
+			
+			
+			
+			
 		}
 		
-		protected virtual void InitializeTextAreaControl(TextAreaControl newControl)
-		{
-		}
 		
 		public override void OptionsChanged()
 		{
@@ -96,9 +98,6 @@ namespace TextFileEdit
 			}
 		}
 		
-		public void Split()
-		{
-		}
 		
 		[Browsable(false)]
 		public bool EnableUndo {
@@ -161,12 +160,7 @@ namespace TextFileEdit
 				Document.UndoStack.ClearAll();
 				Document.UpdateCommited -= new EventHandler(CommitUpdateRequested);
 				if (textAreaPanel != null) {
-					if (secondaryTextArea != null) {
-						secondaryTextArea.Dispose();
-						textAreaSplitter.Dispose();
-						secondaryTextArea = null;
-						textAreaSplitter  = null;
-					}
+					
 					if (primaryTextArea != null) {
 						primaryTextArea.Dispose();
 					}
@@ -196,34 +190,24 @@ namespace TextFileEdit
 				switch (update.TextAreaUpdateType) {
 					case TextAreaUpdateType.PositionToEnd:
 						this.primaryTextArea.TextArea.UpdateToEnd(update.Position.Y);
-						if (this.secondaryTextArea != null) {
-							this.secondaryTextArea.TextArea.UpdateToEnd(update.Position.Y);
-						}
+						
 						break;
 					case TextAreaUpdateType.PositionToLineEnd:
 					case TextAreaUpdateType.SingleLine:
 						this.primaryTextArea.TextArea.UpdateLine(update.Position.Y);
-						if (this.secondaryTextArea != null) {
-							this.secondaryTextArea.TextArea.UpdateLine(update.Position.Y);
-						}
+						
 						break;
 					case TextAreaUpdateType.SinglePosition:
 						this.primaryTextArea.TextArea.UpdateLine(update.Position.Y, update.Position.X, update.Position.X);
-						if (this.secondaryTextArea != null) {
-							this.secondaryTextArea.TextArea.UpdateLine(update.Position.Y, update.Position.X, update.Position.X);
-						}
+						
 						break;
 					case TextAreaUpdateType.LinesBetween:
 						this.primaryTextArea.TextArea.UpdateLines(update.Position.X, update.Position.Y);
-						if (this.secondaryTextArea != null) {
-							this.secondaryTextArea.TextArea.UpdateLines(update.Position.X, update.Position.Y);
-						}
+						
 						break;
 					case TextAreaUpdateType.WholeTextArea:
 						this.primaryTextArea.TextArea.Invalidate();
-						if (this.secondaryTextArea != null) {
-							this.secondaryTextArea.TextArea.Invalidate();
-						}
+						
 						break;
 				}
 			}

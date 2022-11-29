@@ -64,19 +64,6 @@ namespace TextFileEdit
 				return null;
 			}
 		}
-		/*
-		public VScrollBar VScrollBar {
-			get {
-				return vScrollBar;
-			}
-		}
-		
-		public HScrollBar HScrollBar {
-			get {
-				return hScrollBar;
-			}
-		}
-		*/
 		public bool DoHandleMousewheel {
 			get {
 				return doHandleMousewheel;
@@ -117,9 +104,6 @@ namespace TextFileEdit
 		
 		void DocumentTextContentChanged(object sender, EventArgs e)
 		{
-			// after the text content is changed abruptly, we need to validate the
-			// caret position - otherwise the caret position is invalid for a short amount
-			// of time, which can break client code that expects that the caret position is always valid
 			Caret.ValidateCaretPos();
 		}
 		
@@ -146,7 +130,7 @@ namespace TextFileEdit
 			textArea.Bounds = new Rectangle(0, y,
 			                                Width - SystemInformation.HorizontalScrollBarArrowWidth,
 			                                Height - SystemInformation.VerticalScrollBarArrowHeight - h);
-			//SetScrollBarBounds();
+			
 		}
 		bool adjustScrollBarsOnNextUpdate;
 		Point scrollToPosOnNextUpdate;
@@ -154,8 +138,7 @@ namespace TextFileEdit
 		void AdjustScrollBarsOnDocumentChange(object sender, DocumentEventArgs e)
 		{
 			if (motherTextEditorControl.IsInUpdate == false) {
-				//AdjustScrollBarsClearCache();
-				//AdjustScrollBars();
+			
 			} else {
 				adjustScrollBarsOnNextUpdate = true;
 			}
@@ -193,7 +176,7 @@ namespace TextFileEdit
 			adjustScrollBarsOnNextUpdate = false;
 			vScrollBar.Minimum = 0;
 			vScrollBar.Maximum = textArea.MaxVScrollValue;
-			int max = 0;
+			//int max = 0;
 			
 			int firstLine = textArea.TextView.FirstVisibleLine;
 			int lastLine = this.Document.GetFirstLogicalLine(textArea.TextView.FirstPhysicalLine + textArea.TextView.VisibleLineCount);
