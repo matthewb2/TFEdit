@@ -41,7 +41,7 @@ namespace TextFileEdit
 		TextEditorControl       motherTextEditorControl;
 		
 		List<BracketHighlightingSheme> bracketshemes  = new List<BracketHighlightingSheme>();
-		TextAreaClipboardHandler  textAreaClipboardHandler;
+		
 		bool autoClearSelection = false;
 		
 		List<AbstractMargin> leftMargins = new List<AbstractMargin>();
@@ -147,12 +147,6 @@ namespace TextFileEdit
 			}
 		}
 		
-		public TextAreaClipboardHandler ClipboardHandler {
-			get {
-				return textAreaClipboardHandler;
-			}
-		}
-		
 		
 		public ITextEditorProperties TextEditorProperties {
 			get {
@@ -168,7 +162,7 @@ namespace TextFileEdit
 			caret            = new Caret(this);
 			selectionManager = new SelectionManager(Document, this);
 			
-			this.textAreaClipboardHandler = new TextAreaClipboardHandler(this);
+			//this.textAreaClipboardHandler = new TextAreaClipboardHandler(this);
 			
 			ResizeRedraw = true;
 			
@@ -343,24 +337,14 @@ namespace TextFileEdit
 		{
 			int currentXPos = 0;
 			int currentYPos = 0;
-			bool adjustScrollBars = false;
+			
 			Graphics  g = e.Graphics;
-			//
 			Rectangle clipRectangle = e.ClipRectangle;
 			
 			bool isFullRepaint = clipRectangle.X == 0 && clipRectangle.Y == 0
 				&& clipRectangle.Width == this.Width && clipRectangle.Height == this.Height;
-			
+			//
 			g.TextRenderingHint = this.TextEditorProperties.TextRenderingHint;
-			
-			if (updateMargin != null) {
-				updateMargin.Paint(g, updateMargin.DrawingPosition);
-
-			}
-			
-			if (clipRectangle.Width <= 0 || clipRectangle.Height <= 0) {
-				return;
-			}
 			
 			foreach (AbstractMargin margin in leftMargins) {
 				if (margin.IsVisible) {
@@ -369,7 +353,6 @@ namespace TextFileEdit
 						if (!isFullRepaint && !clipRectangle.Contains(marginRectangle)) {
 							Invalidate(); // do a full repaint
 						}
-						adjustScrollBars = true;
 						margin.DrawingPosition = marginRectangle;
 					}
 					currentXPos += margin.DrawingPosition.Width;
@@ -382,19 +365,15 @@ namespace TextFileEdit
 				}
 			}
 			//
+			Console.WriteLine(currentYPos);
 			Rectangle textViewArea = new Rectangle(currentXPos, currentYPos, Width - currentXPos, Height - currentYPos);
 			if (textViewArea != textView.DrawingPosition) {
-				adjustScrollBars = true;
 				textView.DrawingPosition = textViewArea;
-				//
 				BeginInvoke((MethodInvoker)caret.UpdateCaretPosition);
 			}
-			if (clipRectangle.IntersectsWith(textViewArea)) {
-				textViewArea.Intersect(clipRectangle);
-				if (!textViewArea.IsEmpty) {
-					textView.Paint(g, textViewArea);
-				}
-			}
+			Console.WriteLine(textViewArea.ToString());
+
+			textView.Paint(g, textViewArea);
 			
 			base.OnPaint(e);
 		}
@@ -461,8 +440,6 @@ namespace TextFileEdit
 					Cursor.Hide();
 				}
 			}
-			//CloseToolTip();
-			
 			BeginUpdate();
 			Document.UndoStack.StartUndoGroup();
 			try {
@@ -472,15 +449,11 @@ namespace TextFileEdit
 						case CaretMode.InsertMode:
 							InsertChar(ch);
 							break;
-						case CaretMode.OverwriteMode:
-							ReplaceChar(ch);
-							break;
 						default:
 							Debug.Assert(false, "Unknown caret mode " + Caret.CaretMode);
 							break;
 					}
 				}
-				
 				int currentLineNr = Caret.Line;
 				Document.FormattingStrategy.FormatLine(this, currentLineNr, Document.PositionToOffset(Caret.Position), ch);
 				//

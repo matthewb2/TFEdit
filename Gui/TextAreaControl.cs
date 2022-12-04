@@ -131,7 +131,7 @@ namespace TextFileEdit
 			                                Height - SystemInformation.VerticalScrollBarArrowHeight - h);
 			
 		}
-		//bool adjustScrollBarsOnNextUpdate;
+		
 		Point scrollToPosOnNextUpdate;
 		
 		void AdjustScrollBarsOnDocumentChange(object sender, DocumentEventArgs e)
@@ -139,7 +139,7 @@ namespace TextFileEdit
 			if (motherTextEditorControl.IsInUpdate == false) {
 			
 			} else {
-			//	adjustScrollBarsOnNextUpdate = true;
+			
 			}
 		}
 		
@@ -235,25 +235,12 @@ namespace TextFileEdit
 				scrollToPosOnNextUpdate = Point.Empty;
 			}
 			
-			ScrollTo(line);
+			
 						
 		}
 		
 		int scrollMarginHeight  = 3;
 		
-		/// <summary>
-		/// Ensure that <paramref name="line"/> is visible.
-		/// </summary>
-		public void ScrollTo(int line)
-		{
-			line = Math.Max(0, Math.Min(Document.TotalNumberOfLines - 1, line));
-			line = Document.GetVisibleLine(line);
-			int curLineMin = textArea.TextView.FirstPhysicalLine;
-			if (textArea.TextView.LineHeightRemainder > 0) {
-				curLineMin ++;
-			}
-			
-		}
 		
 		/// <summary>
 		/// Scroll so that the specified line is centered.

@@ -137,7 +137,6 @@ namespace TextFileEdit
 		{
 			int line   = Math.Max(0, Math.Min(textArea.Document.TotalNumberOfLines - 1, pos.Y));
 			int column = Math.Max(0, pos.X);
-			//Console.WriteLine("caret column:" + column);
 			
 			if (column == int.MaxValue || !textArea.TextEditorProperties.AllowCaretBeyondEOL) {
 				LineSegment lineSegment = textArea.Document.GetLineSegment(line);
@@ -183,7 +182,6 @@ namespace TextFileEdit
 		
 		public void RecreateCaret()
 		{
-			//Log("RecreateCaret");
 			DisposeCaret();
 			if (!hidden) {
 				CreateCaret();
@@ -201,7 +199,6 @@ namespace TextFileEdit
 		
 		void GotFocus(object sender, EventArgs e)
 		{
-			Log("GotFocus, IsInUpdate=" + textArea.MotherTextEditorControl.IsInUpdate);
 			hidden = false;
 			if (!textArea.MotherTextEditorControl.IsInUpdate) {
 				CreateCaret();
@@ -254,16 +251,8 @@ namespace TextFileEdit
 			if (textArea.TextEditorProperties.CaretLine) {
 				textArea.Invalidate();
 			} else {
-				if (caretImplementation.RequireRedrawOnPositionChange) {
-					textArea.UpdateLine(oldLine);
-					if (line != oldLine)
-						textArea.UpdateLine(line);
-				} else {
-					if (textArea.MotherTextAreaControl.TextEditorProperties.LineViewerStyle == LineViewerStyle.FullRow && oldLine != line) {
-						textArea.UpdateLine(oldLine);
-						textArea.UpdateLine(line);
-					}
-				}
+				textArea.UpdateLine(oldLine);
+				textArea.UpdateLine(line);
 			}
 			oldLine = line;
 			
@@ -318,7 +307,7 @@ namespace TextFileEdit
 		
 		abstract class CaretImplementation : IDisposable
 		{
-			public bool RequireRedrawOnPositionChange;
+			//public bool RequireRedrawOnPositionChange;
 			
 			public abstract bool Create(int width, int height);
 			public abstract void Hide();

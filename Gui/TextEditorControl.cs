@@ -94,19 +94,6 @@ namespace TextFileEdit
 		}
 		
 		
-		[Browsable(false)]
-		public bool EnableUndo {
-			get {
-				return Document.UndoStack.CanUndo;
-			}
-		}
-		
-		[Browsable(false)]
-		public bool EnableRedo {
-			get {
-				return Document.UndoStack.CanRedo;
-			}
-		}
 
 		public void Undo()
 		{
@@ -140,10 +127,6 @@ namespace TextFileEdit
 			}
 		}
 		
-		public virtual void SetHighlighting(string name)
-		{
-			Document.HighlightingStrategy = HighlightingStrategyFactory.CreateHighlightingStrategy(name);
-		}
 		
 		protected override void Dispose(bool disposing)
 		{

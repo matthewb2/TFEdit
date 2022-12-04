@@ -20,7 +20,7 @@ namespace TextFileEdit
 	/// </summary>
 	public class TextView : AbstractMargin, IDisposable
 	{
-		int          fontHeight;
+		int fontHeight;
 
 		public void Dispose()
 		{
@@ -65,12 +65,6 @@ namespace TextFileEdit
 		public int VisibleLineCount {
 			get {
 				return 1 + DrawingPosition.Height / fontHeight;
-			}
-		}
-		
-		public int VisibleColumnCount {
-			get {
-				return (int)(DrawingPosition.Width / WideSpaceWidth) - 1;
 			}
 		}
 		
@@ -119,9 +113,7 @@ namespace TextFileEdit
 		{
 			this.lastFont = TextEditorProperties.FontContainer.RegularFont;
 			this.fontHeight = GetFontHeight(lastFont);
-			// 
 			this.spaceWidth = Math.Max(GetWidth(' ', lastFont), 1);
-			//
 			this.wideSpaceWidth = Math.Max(spaceWidth, GetWidth('x', lastFont));
 		}
 		
@@ -145,17 +137,17 @@ namespace TextFileEdit
 				                                        DrawingPosition.Top + y * fontHeight - VisibleLineDrawingRemainder,
 				                                        DrawingPosition.Width + horizontalDelta,
 				                                        fontHeight);
+				
 				int currentLine = textArea.Document.GetFirstLogicalLine(textArea.Document.GetVisibleLine(FirstVisibleLine) + y);
 				PaintDocumentLine(g, currentLine, lineRectangle);
 			}
-			
 			textArea.Caret.PaintCaret(g);
 		}
 		
 		void PaintDocumentLine(Graphics g, int lineNumber, Rectangle lineRectangle)
 		{
 			
-			Brush bgColorBrush    = GetBgColorBrush(lineNumber);
+			Brush bgColorBrush    = new SolidBrush(Color.White);
 			Brush backgroundBrush = textArea.Enabled ? bgColorBrush : SystemBrushes.InactiveBorder;
 			
 			if (lineNumber >= textArea.Document.TotalNumberOfLines) {
@@ -168,61 +160,23 @@ namespace TextFileEdit
 			physicalXPos = PaintLinePart(g, lineNumber, 0, textArea.Document.GetLineSegment(lineNumber).Length, lineRectangle, physicalXPos);
 			
 			if (lineNumber < textArea.Document.TotalNumberOfLines) {
-				// 
 				ColumnRange    selectionRange = textArea.SelectionManager.GetSelectionAtLine(lineNumber);
 				LineSegment    currentLine    = textArea.Document.GetLineSegment(lineNumber);
 								
 				bool  selectionBeyondEOL = selectionRange.EndColumn > currentLine.Length || ColumnRange.WholeColumn.Equals(selectionRange);
 				Brush fillBrush = selectionBeyondEOL && TextEditorProperties.AllowCaretBeyondEOL ? bgColorBrush : backgroundBrush;
+				
 				g.FillRectangle(fillBrush, new RectangleF(physicalXPos, lineRectangle.Y, lineRectangle.Width - physicalXPos + lineRectangle.X, lineRectangle.Height));
-				Console.WriteLine("line:" + lineRectangle.Y);
-				if (lineRectangle.Y > 100 && lineRectangle.Y < 140)
-                {
-					//
-					g.DrawLine(new Pen(Color.Black, 1), new Point(0, lineRectangle.Y), new Point(lineRectangle.X+lineRectangle.Width, lineRectangle.Y));
-				}
+				//Console.WriteLine("line:" + lineRectangle.Y);
+				
 			}
-		}
-		
-		
-		Brush GetBgColorBrush(int lineNumber)
-		{
-		
-			HighlightColor background = textArea.Document.HighlightingStrategy.GetColorFor("Default");
-			Color bgColor = background.BackgroundColor;
-			return BrushRegistry.GetBrush(bgColor);
-		
-		}
-		
-		
-		/// <summary>
-		/// Get the marker brush (for solid block markers) at a given position.
-		/// </summary>
-		/// <param name="offset">The offset.</param>
-		/// <param name="length">The length.</param>
-		/// <param name="markers">All markers that have been found.</param>
-		/// <returns>The Brush or null when no marker was found.</returns>
-		Brush GetMarkerBrushAt(int offset, int length, ref Color foreColor, out IList<TextMarker> markers)
-		{
-			
-			markers = Document.MarkerStrategy.GetMarkers(offset, length);
-			foreach (TextMarker marker in markers) {
-				if (marker.TextMarkerType == TextMarkerType.SolidBlock) {
-					if (marker.OverrideForeColor) {
-						foreColor = marker.ForeColor;
-					}
-					return BrushRegistry.GetBrush(marker.Color);
-				}
-			}
-			
-			return null;
 		}
 		
 		int PaintLinePart(Graphics g, int lineNumber, int startColumn, int endColumn, Rectangle lineRectangle, int physicalXPos)
 		{
 
 			LineSegment currentLine    = textArea.Document.GetLineSegment(lineNumber);
-			
+			Console.WriteLine("current line: " + currentLine.ToString());
 			if (currentLine.Words == null) {
 				return physicalXPos;
 			}
@@ -241,15 +195,12 @@ namespace TextFileEdit
 					break;
 				}
 				
-				IList<TextMarker> markers;
 				Color wordForeColor = currentWord.Color;
 				
-				Brush wordBackBrush = GetMarkerBrushAt(currentLine.Offset + currentWordOffset, currentWord.Length, ref wordForeColor, out markers);
-				Console.WriteLine(wordBackBrush.ToString());
-				//Console.WriteLine("line:" + lineRectangle.Y);
-
-				int wordWidth = DrawDocumentWord(g,
-												 currentWord.Word,
+				// Create solid brush.
+				SolidBrush wordBackBrush = new SolidBrush(Color.White);
+				
+				int wordWidth = DrawDocumentWord(g, currentWord.Word,
 												 new Point(physicalXPos, lineRectangle.Y),
 												 currentWord.GetFont(fontContainer),
 												 wordForeColor,
@@ -272,8 +223,9 @@ namespace TextFileEdit
 			if (word == null || word.Length == 0) {
 				return 0;
 			}
-			
+			/*
 			if (word.Length > MaximumWordLength) {
+				Console.WriteLine("ddd");
 				int width = 0;
 				for (int i = 0; i < word.Length; i += MaximumWordLength) {
 					Point pos = position;
@@ -285,11 +237,12 @@ namespace TextFileEdit
 				}
 				return width;
 			}
+			*/
 			int wordWidth = MeasureStringWidth(g, word, font);
+			
 			g.FillRectangle(backBrush, new RectangleF(position.X, position.Y, wordWidth + 1, FontHeight));
 			
-			DrawString(g,
-			           word,
+			DrawString(g, word,
 			           font,
 			           foreColor,
 			           position.X,
@@ -304,15 +257,8 @@ namespace TextFileEdit
 				this.word = word;
 				this.font = font;
 			}
-			public override bool Equals(object obj) {
-				WordFontPair myWordFontPair = (WordFontPair)obj;
-				if (!word.Equals(myWordFontPair.word)) return false;
-				return font.Equals(myWordFontPair.font);
-			}
+		
 			
-			public override int GetHashCode() {
-				return word.GetHashCode() ^ font.GetHashCode();
-			}
 		}
 		
 		Dictionary<WordFontPair, int> measureCache = new Dictionary<WordFontPair, int>();
@@ -327,6 +273,7 @@ namespace TextFileEdit
 			int width;
 			if (word == null || word.Length == 0)
 				return 0;
+			/*
 			if (word.Length > MaximumWordLength) {
 				width = 0;
 				for (int i = 0; i < word.Length; i += MaximumWordLength) {
@@ -337,6 +284,7 @@ namespace TextFileEdit
 				}
 				return width;
 			}
+			*/
 			if (measureCache.TryGetValue(new WordFontPair(word, font), out width)) {
 				return width;
 			}
@@ -390,24 +338,6 @@ namespace TextFileEdit
 			return column;
 		}
 		
-		public int GetVisualColumnFast(LineSegment line, int logicalColumn)
-		{
-			int lineOffset = line.Offset;
-			int tabIndent = Document.TextEditorProperties.TabIndent;
-			int guessedColumn = 0;
-			for (int i = 0; i < logicalColumn; ++i) {
-				char ch;
-				if (i >= line.Length) {
-					ch = ' ';
-				} else {
-					ch = Document.GetCharAt(lineOffset + i);
-				}
-				++guessedColumn;
-			
-			}
-			return guessedColumn;
-		}
-		
 		/// <summary>
 		/// returns line/column for a visual point position
 		/// </summary>
@@ -457,94 +387,9 @@ namespace TextFileEdit
 				return new TextLocation(0, lineNumber);
 			}
 			
-			int start = 0; // column
-			int posX = 0; // visual position
+			int result=0;
 			
-			int result;
-			using (Graphics g = textArea.CreateGraphics()) {
-				// 
-				while (true) {
-					//
-					LineSegment line = Document.GetLineSegment(lineNumber);
-					FoldMarker nextFolding = FindNextFoldedFoldingOnLineAfterColumn(lineNumber, start-1);
-					int end = nextFolding != null ? nextFolding.StartColumn : int.MaxValue;
-					result = GetLogicalColumnInternal(g, line, start, end, ref posX, visualPosX);
-					
-					if (result < end)
-						break;
-					
-					lineNumber = nextFolding.EndLine;
-					start = nextFolding.EndColumn;
-					int newPosX = posX + 1 + MeasureStringWidth(g, nextFolding.FoldText, TextEditorProperties.FontContainer.RegularFont);
-					//
-					if (newPosX >= visualPosX) {
-						inFoldMarker = nextFolding;
-						if (IsNearerToAThanB(visualPosX, posX, newPosX))
-							return new TextLocation(nextFolding.StartColumn, nextFolding.StartLine);
-						else
-							return new TextLocation(nextFolding.EndColumn, nextFolding.EndLine);
-					}
-					posX = newPosX;
-				}
-			}
 			return new TextLocation(result, lineNumber);
-		}
-		
-		int GetLogicalColumnInternal(Graphics g, LineSegment line, int start, int end, ref int drawingPos, int targetVisualPosX)
-		{
-			if (start == end)
-				return end;
-		
-			FontContainer fontContainer = TextEditorProperties.FontContainer;
-			List<TextWord> words = line.Words;
-			if (words == null) return 0;
-			int wordOffset = 0;
-			for (int i = 0; i < words.Count; i++) {
-				TextWord word = words[i];
-				if (wordOffset >= end) {
-					return wordOffset;
-				}
-				if (wordOffset + word.Length >= start) {
-					int newDrawingPos;
-					int wordStart = Math.Max(wordOffset, start);
-					int wordLength = Math.Min(wordOffset + word.Length, end) - wordStart;
-					string text = Document.GetText(line.Offset + wordStart, wordLength);
-					Font font = word.GetFont(fontContainer) ?? fontContainer.RegularFont;
-					newDrawingPos = drawingPos + MeasureStringWidth(g, text, font);
-					if (newDrawingPos >= targetVisualPosX)
-					{
-						for (int j = 0; j < text.Length; j++)
-						{
-							newDrawingPos = drawingPos + MeasureStringWidth(g, text[j].ToString(), font);
-							if (newDrawingPos >= targetVisualPosX)
-							{
-								if (IsNearerToAThanB(targetVisualPosX, drawingPos, newDrawingPos))
-									return wordStart + j;
-								else
-									return wordStart + j + 1;
-							}
-							drawingPos = newDrawingPos;
-						}
-						return wordStart + text.Length;
-					}
-					drawingPos = newDrawingPos;
-				}
-				wordOffset += word.Length;
-			}
-			return wordOffset;
-		}
-		
-		static bool IsNearerToAThanB(int num, int a, int b)
-		{
-			return Math.Abs(a - num) < Math.Abs(b - num);
-		}
-		FoldMarker FindNextFoldedFoldingOnLineAfterColumn(int lineNumber, int column)
-		{
-			List<FoldMarker> list = Document.FoldingManager.GetFoldedFoldingsWithStartAfterColumn(lineNumber, column);
-			if (list.Count != 0)
-				return list[0];
-			else
-				return null;
 		}
 		
 		
@@ -554,7 +399,7 @@ namespace TextFileEdit
 			if (start == end) return 0;
 			//
 			float drawingPos = 0;
-			//
+			
 			LineSegment currentLine = Document.GetLineSegment(logicalLine);
 			List<TextWord> words = currentLine.Words;
 			if (words == null) return 0;
@@ -577,7 +422,6 @@ namespace TextFileEdit
 			for (int j = currentLine.Length; j < end; j++) {
 				drawingPos += WideSpaceWidth;
 			}
-			//
 			column += (int)((drawingPos + 1) / WideSpaceWidth);
 			//
 			return drawingPos;
