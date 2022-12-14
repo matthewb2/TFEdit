@@ -56,19 +56,7 @@ namespace TextFileEdit
 		
 		bool disposed;
 		
-		[Browsable(false)]
-		public IList<AbstractMargin> LeftMargins {
-			get {
-				return leftMargins.AsReadOnly();
-			}
-		}
-		
-		public void InsertLeftMargin(int index, AbstractMargin margin)
-		{
-			leftMargins.Insert(index, margin);
-			Refresh();
-		}
-		
+				
 		public TextEditorControl MotherTextEditorControl {
 			get {
 				return motherTextEditorControl;
@@ -99,17 +87,6 @@ namespace TextFileEdit
 			}
 		}
 		
-		public GutterMargin GutterMargin {
-			get {
-				return gutterMargin;
-			}
-		}
-		
-		public Encoding Encoding {
-			get {
-				return motherTextEditorControl.Encoding;
-			}
-		}
 		public int MaxVScrollValue {
 			get {
 				return (Document.GetVisibleLine(Document.TotalNumberOfLines - 1) + 1 + TextView.VisibleLineCount * 2 / 3) * TextView.FontHeight;
@@ -162,13 +139,10 @@ namespace TextFileEdit
 			caret            = new Caret(this);
 			selectionManager = new SelectionManager(Document, this);
 			
-			//this.textAreaClipboardHandler = new TextAreaClipboardHandler(this);
-			
 			ResizeRedraw = true;
 			
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.ResizeRedraw, true);
-			SetStyle(ControlStyles.Selectable, true);
 			
 			textView = new TextView(this);
 			
@@ -190,7 +164,7 @@ namespace TextFileEdit
 		void TextContentChanged(object sender, EventArgs e)
 		{
 			Caret.Position = new TextLocation(0, 0);
-			SelectionManager.SelectionCollection.Clear();
+			
 		}
 		
 		public void SetDesiredColumn()
@@ -212,17 +186,12 @@ namespace TextFileEdit
 			Refresh();
 		}
 		
-		AbstractMargin lastMouseInMargin;
 		
 		protected override void OnMouseLeave(System.EventArgs e)
 		{
 			base.OnMouseLeave(e);
-			this.Cursor = Cursors.Default;
-			if (lastMouseInMargin != null) {
-				lastMouseInMargin.HandleMouseLeave(EventArgs.Empty);
-				lastMouseInMargin = null;
-			}
-			//CloseToolTip();
+			
+		
 		}
 		
 		protected override void OnMouseDown(System.Windows.Forms.MouseEventArgs e)
@@ -230,13 +199,7 @@ namespace TextFileEdit
 			mousepos = new Point(e.X, e.Y);
 
 			base.OnMouseDown(e);
-			//CloseToolTip();
 			
-			foreach (AbstractMargin margin in leftMargins) {
-				if (margin.DrawingPosition.Contains(e.X, e.Y)) {
-					margin.HandleMouseDown(new Point(e.X, e.Y), e.Button);
-				}
-			}
 		}
 		
 		/// <summary>
@@ -245,43 +208,22 @@ namespace TextFileEdit
 		/// <param name="forceShow"><c>true</c> to always show the cursor or <c>false</c> to show it only if it has been moved since it was hidden.</param>
 		internal void ShowHiddenCursor(bool forceShow)
 		{
-			if (hiddenMouseCursor) {
-				if (mouseCursorHidePosition != Cursor.Position || forceShow) {
-					Cursor.Show();
-					hiddenMouseCursor = false;
-				}
-			}
+			
 		}
 		
-		
-		
-		//bool toolTipActive;
 		/// <summary>
 		/// Rectangle in text area that caused the current tool tip.
 		/// Prevents tooltip from re-showing when it was closed because of a click or keyboard
 		/// input and the mouse was not used.
 		/// </summary>
-		//Rectangle toolTipRectangle;
-		
-		void CloseToolTip()
-		{
-		}
+				
 		
 		protected override void OnMouseHover(EventArgs e)
 		{
 			base.OnMouseHover(e);
 			
-			if (MouseButtons == MouseButtons.None) {
-				RequestToolTip(PointToClient(Control.MousePosition));
-			} else {
-				//CloseToolTip();
-			}
 		}
-		
-		protected void RequestToolTip(Point mousePos)
-		{
-		}
-		
+				
 		// external interface to the attached event
 		internal void RaiseMouseMove(MouseEventArgs e)
 		{
@@ -291,46 +233,11 @@ namespace TextFileEdit
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			base.OnMouseMove(e);
-	
-			foreach (AbstractMargin margin in leftMargins) {
-				if (margin.DrawingPosition.Contains(e.X, e.Y)) {
-					this.Cursor = margin.Cursor;
-					margin.HandleMouseMove(new Point(e.X, e.Y), e.Button);
-					if (lastMouseInMargin != margin) {
-						if (lastMouseInMargin != null) {
-							lastMouseInMargin.HandleMouseLeave(EventArgs.Empty);
-						}
-						lastMouseInMargin = margin;
-					}
-					return;
-				}
-			}
-			if (lastMouseInMargin != null) {
-				lastMouseInMargin.HandleMouseLeave(EventArgs.Empty);
-				lastMouseInMargin = null;
-			}
-			if (textView.DrawingPosition.Contains(e.X, e.Y)) {
-				TextLocation realmousepos = TextView.GetLogicalPosition(e.X - TextView.DrawingPosition.X, e.Y - TextView.DrawingPosition.Y);
-				if(SelectionManager.IsSelected(Document.PositionToOffset(realmousepos)) && MouseButtons == MouseButtons.None) {
-					// mouse is hovering over a selection, so show default mouse
-					this.Cursor = Cursors.Default;
-				} else {
-					// mouse is hovering over text area, not a selection, so show the textView cursor
-					this.Cursor = textView.Cursor;
-				}
-				return;
-			}
+		
 			this.Cursor = Cursors.Default;
 		}
-		AbstractMargin updateMargin = null;
+		//AbstractMargin updateMargin = null;
 		
-		public void Refresh(AbstractMargin margin)
-		{
-			updateMargin = margin;
-			Invalidate(updateMargin.DrawingPosition);
-			Update();
-			updateMargin = null;
-		}
 		
 		
 		protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
@@ -356,25 +263,25 @@ namespace TextFileEdit
 						margin.DrawingPosition = marginRectangle;
 					}
 					currentXPos += margin.DrawingPosition.Width;
+					
 					if (clipRectangle.IntersectsWith(marginRectangle)) {
-						marginRectangle.Intersect(clipRectangle);
 						if (!marginRectangle.IsEmpty) {
 							margin.Paint(g, marginRectangle);
 						}
 					}
+					
 				}
 			}
-			//
-			Console.WriteLine(currentYPos);
+			
 			Rectangle textViewArea = new Rectangle(currentXPos, currentYPos, Width - currentXPos, Height - currentYPos);
+			
 			if (textViewArea != textView.DrawingPosition) {
 				textView.DrawingPosition = textViewArea;
 				BeginInvoke((MethodInvoker)caret.UpdateCaretPosition);
 			}
-			Console.WriteLine(textViewArea.ToString());
-
-			textView.Paint(g, textViewArea);
 			
+			
+			textView.Paint(g, textViewArea);
 			base.OnPaint(e);
 		}
 		
@@ -401,9 +308,7 @@ namespace TextFileEdit
 			if (Document.ReadOnly) {
 				return true;
 			}
-			if (TextEditorProperties.SupportReadOnlySegments) {
-				return Document.MarkerStrategy.GetMarkers(offset).Exists(m=>m.IsReadOnly);
-			} else {
+			else {
 				return false;
 			}
 		}
@@ -423,8 +328,7 @@ namespace TextFileEdit
 		public void SimulateKeyPress(char ch)
 		{
 			if (SelectionManager.HasSomethingSelected) {
-				if (SelectionManager.SelectionIsReadonly)
-					return;
+				
 			} else if (IsReadOnly(Caret.Offset)) {
 				return;
 			}
@@ -432,16 +336,8 @@ namespace TextFileEdit
 			if (ch < ' ') {
 				return;
 			}
-			
-			if (!hiddenMouseCursor && TextEditorProperties.HideMouseCursor) {
-				if (this.ClientRectangle.Contains(PointToClient(Cursor.Position))) {
-					mouseCursorHidePosition = Cursor.Position;
-					hiddenMouseCursor = true;
-					Cursor.Hide();
-				}
-			}
 			BeginUpdate();
-			Document.UndoStack.StartUndoGroup();
+			//
 			try {
 				// INSERT char
 				if (!HandleKeyPress(ch)) {
@@ -454,12 +350,9 @@ namespace TextFileEdit
 							break;
 					}
 				}
-				int currentLineNr = Caret.Line;
-				Document.FormattingStrategy.FormatLine(this, currentLineNr, Document.PositionToOffset(Caret.Position), ch);
-				//
 				EndUpdate();
 			} finally {
-				Document.UndoStack.EndUndoGroup();
+				
 			}
 		}
 		
@@ -481,20 +374,13 @@ namespace TextFileEdit
 			}
 			
 			IEditAction action =  motherTextEditorControl.GetEditAction(keyData);
-			AutoClearSelection = true;
+			
 			if (action != null) {
-				BeginUpdate();
+				//BeginUpdate();
 				try {
-					lock (Document) {
-						action.Execute(this);
-						if (SelectionManager.HasSomethingSelected && AutoClearSelection /*&& caretchanged*/) {
-							if (Document.TextEditorProperties.DocumentSelectionMode == DocumentSelectionMode.Normal) {
-								SelectionManager.ClearSelection();
-							}
-						}
-					}
+
 				} finally {
-					EndUpdate();
+					//EndUpdate();
 					Caret.UpdateCaretPosition();
 				}
 				return true;
@@ -510,7 +396,7 @@ namespace TextFileEdit
 		
 		public void ScrollToCaret()
 		{
-			motherTextAreaControl.ScrollToCaret();
+			
 		}
 		
 		public void BeginUpdate()
@@ -527,8 +413,6 @@ namespace TextFileEdit
 			get {
 				if (motherTextAreaControl == null)
 					return false;
-				if (SelectionManager.HasSomethingSelected)
-					return !SelectionManager.SelectionIsReadonly;
 				else
 					return !IsReadOnly(Caret.Offset);
 			}
@@ -549,13 +433,6 @@ namespace TextFileEdit
 			}
 			if (Char.IsWhiteSpace(ch) && ch != '\t' && ch != '\n') {
 				ch = ' ';
-			}
-			
-			Document.UndoStack.StartUndoGroup();
-			if (Document.TextEditorProperties.DocumentSelectionMode == DocumentSelectionMode.Normal &&
-			    SelectionManager.SelectionCollection.Count > 0) {
-				Caret.Position = SelectionManager.SelectionCollection[0].StartPosition;
-				SelectionManager.RemoveSelectedText();
 			}
 			LineSegment caretLine = Document.GetLineSegment(Caret.Line);
 			int offset = Caret.Offset;
@@ -585,13 +462,7 @@ namespace TextFileEdit
 				BeginUpdate();
 			}
 			try {
-				Document.UndoStack.StartUndoGroup();
-				if (Document.TextEditorProperties.DocumentSelectionMode == DocumentSelectionMode.Normal &&
-				    SelectionManager.SelectionCollection.Count > 0) {
-					Caret.Position = SelectionManager.SelectionCollection[0].StartPosition;
-					SelectionManager.RemoveSelectedText();
-				}
-				
+								
 				int oldOffset = Document.PositionToOffset(Caret.Position);
 				int oldLine   = Caret.Line;
 				LineSegment caretLine = Document.GetLineSegment(Caret.Line);
@@ -603,12 +474,8 @@ namespace TextFileEdit
 					Document.Insert(oldOffset, str);
 					Caret.Position = Document.OffsetToPosition(oldOffset + str.Length);
 				}
-				Document.UndoStack.EndUndoGroup();
-				if (oldLine != Caret.Line) {
-					UpdateToEnd(oldLine);
-				} else {
-					UpdateLineToEnd(Caret.Line, Caret.Column);
-				}
+				
+				UpdateLineToEnd(Caret.Line, Caret.Column);
 			} finally {
 				if (!updating) {
 					EndUpdate();
@@ -625,11 +492,6 @@ namespace TextFileEdit
 			if (!updating) {
 				BeginUpdate();
 			}
-			if (Document.TextEditorProperties.DocumentSelectionMode == DocumentSelectionMode.Normal && SelectionManager.SelectionCollection.Count > 0) {
-				Caret.Position = SelectionManager.SelectionCollection[0].StartPosition;
-				SelectionManager.RemoveSelectedText();
-			}
-			
 			int lineNr   = Caret.Line;
 			LineSegment  line = Document.GetLineSegment(lineNr);
 			int offset = Document.PositionToOffset(Caret.Position);

@@ -32,11 +32,6 @@ namespace TextFileEdit
 				return textArea.VirtualTop.Y / fontHeight;
 			}
 		}
-		public int LineHeightRemainder {
-			get {
-				return textArea.VirtualTop.Y % fontHeight;
-			}
-		}
 		/// <summary>Gets the first visible <b>logical</b> line.</summary>
 		public int FirstVisibleLine {
 			get {
@@ -160,15 +155,7 @@ namespace TextFileEdit
 			physicalXPos = PaintLinePart(g, lineNumber, 0, textArea.Document.GetLineSegment(lineNumber).Length, lineRectangle, physicalXPos);
 			
 			if (lineNumber < textArea.Document.TotalNumberOfLines) {
-				ColumnRange    selectionRange = textArea.SelectionManager.GetSelectionAtLine(lineNumber);
-				LineSegment    currentLine    = textArea.Document.GetLineSegment(lineNumber);
-								
-				bool  selectionBeyondEOL = selectionRange.EndColumn > currentLine.Length || ColumnRange.WholeColumn.Equals(selectionRange);
-				Brush fillBrush = selectionBeyondEOL && TextEditorProperties.AllowCaretBeyondEOL ? bgColorBrush : backgroundBrush;
-				
-				g.FillRectangle(fillBrush, new RectangleF(physicalXPos, lineRectangle.Y, lineRectangle.Width - physicalXPos + lineRectangle.X, lineRectangle.Height));
-				//Console.WriteLine("line:" + lineRectangle.Y);
-				
+				g.FillRectangle(bgColorBrush, new RectangleF(physicalXPos, lineRectangle.Y, lineRectangle.Width - physicalXPos + lineRectangle.X, lineRectangle.Height));
 			}
 		}
 		
@@ -186,10 +173,12 @@ namespace TextFileEdit
 			FontContainer fontContainer = TextEditorProperties.FontContainer;
 			for (int wordIdx = 0; wordIdx < currentLine.Words.Count; wordIdx++) {
 				currentWord = currentLine.Words[wordIdx];
+				/*
 				if (currentWordOffset < startColumn) {
 					currentWordOffset += currentWord.Length;
 					continue;
 				}
+				*/
 			repeatDrawCurrentWord:
 				if (currentWordOffset >= endColumn || physicalXPos >= lineRectangle.Right) {
 					break;
@@ -206,7 +195,10 @@ namespace TextFileEdit
 												 wordForeColor,
 												 wordBackBrush);
 				//
-				physicalXPos += wordWidth;
+				if (currentWord.Type == TextWordType.Space)
+				{
+					physicalXPos += SpaceWidth;
+				} else physicalXPos += wordWidth;
 				
 				currentWordOffset += currentWord.Length;
 				if (nextCurrentWord != null) {
@@ -223,21 +215,6 @@ namespace TextFileEdit
 			if (word == null || word.Length == 0) {
 				return 0;
 			}
-			/*
-			if (word.Length > MaximumWordLength) {
-				Console.WriteLine("ddd");
-				int width = 0;
-				for (int i = 0; i < word.Length; i += MaximumWordLength) {
-					Point pos = position;
-					pos.X += width;
-					if (i + MaximumWordLength < word.Length)
-						width += DrawDocumentWord(g, word.Substring(i, MaximumWordLength), pos, font, foreColor, backBrush);
-					else
-						width += DrawDocumentWord(g, word.Substring(i, word.Length - i), pos, font, foreColor, backBrush);
-				}
-				return width;
-			}
-			*/
 			int wordWidth = MeasureStringWidth(g, word, font);
 			
 			g.FillRectangle(backBrush, new RectangleF(position.X, position.Y, wordWidth + 1, FontHeight));
@@ -265,7 +242,7 @@ namespace TextFileEdit
 		
 		// split words after 1000 characters. Fixes GDI+ crash on very longs words, for example
 		// a 100 KB Base64-file without any line breaks.
-		const int MaximumWordLength = 1000;
+		
 		const int MaximumCacheSize = 2000;
 		
 		int MeasureStringWidth(Graphics g, string word, Font font)
@@ -274,27 +251,16 @@ namespace TextFileEdit
 			if (word == null || word.Length == 0)
 				return 0;
 			/*
-			if (word.Length > MaximumWordLength) {
-				width = 0;
-				for (int i = 0; i < word.Length; i += MaximumWordLength) {
-					if (i + MaximumWordLength < word.Length)
-						width += MeasureStringWidth(g, word.Substring(i, MaximumWordLength), font);
-					else
-						width += MeasureStringWidth(g, word.Substring(i, word.Length - i), font);
-				}
-				return width;
-			}
-			*/
 			if (measureCache.TryGetValue(new WordFontPair(word, font), out width)) {
 				return width;
 			}
+			*/
 			if (measureCache.Count > MaximumCacheSize) {
 				measureCache.Clear();
 			}
 			
 			// Replaced GDI+ measurement with GDI measurement: faster and even more exact
 			width = TextRenderer.MeasureText(g, word, font, new Size(short.MaxValue, short.MaxValue), textFormatFlags).Width;
-			measureCache.Add(new WordFontPair(word, font), width);
 			return width;
 		}
 		
@@ -386,9 +352,7 @@ namespace TextFileEdit
 			if (visualPosX <= 0) {
 				return new TextLocation(0, lineNumber);
 			}
-			
 			int result=0;
-			
 			return new TextLocation(result, lineNumber);
 		}
 		
@@ -422,8 +386,6 @@ namespace TextFileEdit
 			for (int j = currentLine.Length; j < end; j++) {
 				drawingPos += WideSpaceWidth;
 			}
-			column += (int)((drawingPos + 1) / WideSpaceWidth);
-			//
 			return drawingPos;
 		}
 		
@@ -431,43 +393,21 @@ namespace TextFileEdit
 		{
 			
 			List<FoldMarker> foldings = Document.FoldingManager.GetTopLevelFoldedFoldings();
-			int i;
-			FoldMarker f = null;
-			//
-			for (i = foldings.Count - 1; i >= 0; --i) {
-				f = foldings[i];
-				if (f.StartLine < logicalLine || f.StartLine == logicalLine && f.StartColumn < logicalColumn) {
-					break;
-				}
-				FoldMarker f2 = foldings[i / 2];
-				if (f2.StartLine > logicalLine || f2.StartLine == logicalLine && f2.StartColumn >= logicalColumn) {
-					i /= 2;
-				}
-			}
+			//int i;
+			//FoldMarker f = null;
 			
 			int column       = 0;
 			float drawingPos;
 			Graphics g = textArea.CreateGraphics();
+			/*
 			if (f == null || !(f.StartLine < logicalLine || f.StartLine == logicalLine && f.StartColumn < logicalColumn)) {
 				drawingPos = CountColumns(ref column, 0, logicalColumn, logicalLine, g);
 				return (int)(drawingPos - textArea.VirtualTop.X);
 			}
-			
-			if (f.EndLine > logicalLine || f.EndLine == logicalLine && f.EndColumn > logicalColumn) {
-				logicalColumn = f.StartColumn;
-				logicalLine = f.StartLine;
-				--i;
-			}
-			for (; i >= 0; --i) {
-				f = (FoldMarker)foldings[i];
-				if (f.EndLine < logicalLine) { // reached the begin of a new visible line
-					break;
-				}
-			}
-			int foldEnd      = 0;
+			*/
 			drawingPos = 0;
 			
-			drawingPos += CountColumns(ref column, foldEnd, logicalColumn, logicalLine, g);
+			drawingPos += CountColumns(ref column, 0, logicalColumn, logicalLine, g);
 			g.Dispose();
 			return (int)(drawingPos - textArea.VirtualTop.X);
 		}

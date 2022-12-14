@@ -83,10 +83,13 @@ namespace TextFileEdit
 		
 		public virtual void HandleMouseDown(Point mousepos, MouseButtons mouseButtons)
 		{
+			/*
 			if (MouseDown != null) {
 				MouseDown(this, mousepos, mouseButtons);
 			}
+			*/
 		}
+		/*
 		public virtual void HandleMouseMove(Point mousepos, MouseButtons mouseButtons)
 		{
 			if (MouseMove != null) {
@@ -99,7 +102,7 @@ namespace TextFileEdit
 				MouseLeave(this, e);
 			}
 		}
-		
+		*/
 		public virtual void Paint(Graphics g, Rectangle rect)
 		{
 			if (Painted != null) {
@@ -108,8 +111,8 @@ namespace TextFileEdit
 		}
 		
 		public event MarginPaintEventHandler Painted;
-		public event MarginMouseEventHandler MouseDown;
-		public event MarginMouseEventHandler MouseMove;
-		public event EventHandler            MouseLeave;
+		//public event MarginMouseEventHandler MouseDown;
+		//public event MarginMouseEventHandler MouseMove;
+		//public event EventHandler            MouseLeave;
 	}
 }

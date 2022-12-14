@@ -90,7 +90,7 @@ namespace TextFileEdit
 		void PaintFoldMarker(Graphics g, int lineNumber, Rectangle drawingRectangle)
 		{
 		}
-		
+		/*
 		public override void HandleMouseMove(Point mousepos, MouseButtons mouseButtons)
 		{
 			bool  showFolding  = textArea.Document.TextEditorProperties.EnableFolding;
@@ -132,45 +132,7 @@ namespace TextFileEdit
 			}
 			textArea.Document.FoldingManager.NotifyFoldingsChanged(EventArgs.Empty);
 		}
+		*/
 		
-		public override void HandleMouseLeave(EventArgs e)
-		{
-			if (selectedFoldLine != -1) {
-				selectedFoldLine = -1;
-				textArea.Refresh(this);
-			}
-		}
-		
-		#region Drawing functions
-		void DrawFoldMarker(Graphics g, RectangleF rectangle, bool isOpened, bool isSelected)
-		{
-			HighlightColor foldMarkerColor = textArea.Document.HighlightingStrategy.GetColorFor("FoldMarker");
-			HighlightColor foldLineColor   = textArea.Document.HighlightingStrategy.GetColorFor("FoldLine");
-			HighlightColor selectedFoldLine = textArea.Document.HighlightingStrategy.GetColorFor("SelectedFoldLine");
-			
-			Rectangle intRect = new Rectangle((int)rectangle.X, (int)rectangle.Y, (int)rectangle.Width, (int)rectangle.Height);
-			g.FillRectangle(BrushRegistry.GetBrush(foldMarkerColor.BackgroundColor), intRect);
-			g.DrawRectangle(BrushRegistry.GetPen(isSelected ? selectedFoldLine.Color : foldLineColor.Color), intRect);
-			
-			int space  = (int)Math.Round(((double)rectangle.Height) / 8d) + 1;
-			int mid    = intRect.Height / 2 + intRect.Height % 2;
-			
-			// draw minus
-			g.DrawLine(BrushRegistry.GetPen(foldMarkerColor.Color),
-			           rectangle.X + space,
-			           rectangle.Y + mid,
-			           rectangle.X + rectangle.Width - space,
-			           rectangle.Y + mid);
-			
-			// draw plus
-			if (!isOpened) {
-				g.DrawLine(BrushRegistry.GetPen(foldMarkerColor.Color),
-				           rectangle.X + mid,
-				           rectangle.Y + space,
-				           rectangle.X + mid,
-				           rectangle.Y + rectangle.Height - space);
-			}
-		}
-		#endregion
 	}
 }
