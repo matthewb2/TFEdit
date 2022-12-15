@@ -235,8 +235,6 @@ namespace TextFileEdit.Document
 			textBufferStrategy.Insert(offset, text);
 			lineTrackingStrategy.Insert(offset, text);
 			
-			undoStack.Push(new UndoableInsert(this, offset, text));
-			
 			OnDocumentChanged(new DocumentEventArgs(this, offset, -1, text));
 		}
 		

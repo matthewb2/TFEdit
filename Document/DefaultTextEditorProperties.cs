@@ -30,7 +30,7 @@ namespace TextFileEdit.Document
 		public DefaultTextEditorProperties()
 		{
 			if (DefaultFont == null) {
-				DefaultFont = new Font("Courier New", 10);
+				DefaultFont = new Font("±¼¸²", 24);
 			}
 			this.fontContainer = new FontContainer(DefaultFont);
 		}
@@ -40,7 +40,7 @@ namespace TextFileEdit.Document
 		bool        caretLine           = false;
 		
 		bool        showMatchingBracket = true;
-		bool        showLineNumbers     = true;
+		bool        showLineNumbers     = false;
 		
 		bool        showSpaces          = false;
 		bool        showTabs            = false;
@@ -51,7 +51,7 @@ namespace TextFileEdit.Document
 		bool        isIconBarVisible    = false;
 		bool        enableFolding       = true;
 		bool        showHorizontalRuler = false;
-		bool        showVerticalRuler   = true;
+		bool        showVerticalRuler   = false;
 		bool        convertTabsToSpaces = false;
 		System.Drawing.Text.TextRenderingHint textRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
 		bool        mouseWheelScrollDown = true;

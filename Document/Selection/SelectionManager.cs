@@ -77,17 +77,11 @@ namespace TextFileEdit.Document
 			get {
 				StringBuilder builder = new StringBuilder();
 				
-//				PriorityQueue queue = new PriorityQueue();
-				
 				foreach (ISelection s in selectionCollection) {
 					builder.Append(s.SelectedText);
-//					queue.Insert(-s.Offset, s);
+
 				}
 				
-//				while (queue.Count > 0) {
-//					ISelection s = ((ISelection)queue.Remove());
-//					builder.Append(s.SelectedText);
-//				}
 				
 				return builder.ToString();
 			}
@@ -139,7 +133,6 @@ namespace TextFileEdit.Document
 		/// </remarks>
 		public void SetSelection(ISelection selection)
 		{
-//			autoClearSelection = false;
 			if (selection != null) {
 				if (SelectionCollection.Count == 1 &&
 				    selection.StartPosition == SelectionCollection[0].StartPosition &&
@@ -204,7 +197,6 @@ namespace TextFileEdit.Document
 			ISelection selection = this.selectionCollection[0];
 
 			if (min == max) {
-				//selection.StartPosition = newPosition;
 				return;
 			} else {
 				// changed selection via gutter
@@ -266,22 +258,7 @@ namespace TextFileEdit.Document
 		/// </remarks>
 		public void ClearSelection()
 		{
-			Point mousepos;
-			mousepos = textArea.mousepos;
-			// this is the most logical place to reset selection starting
-			// positions because it is always called before a new selection
-			selectFrom.first = selectFrom.where;
-			TextLocation newSelectionStart = textArea.TextView.GetLogicalPosition(mousepos.X - textArea.TextView.DrawingPosition.X, mousepos.Y - textArea.TextView.DrawingPosition.Y);
-			if (selectFrom.where == WhereFrom.Gutter) {
-				newSelectionStart.X = 0;
-//				selectionStart.Y = -1;
-			}
-			if (newSelectionStart.Line >= document.TotalNumberOfLines) {
-				newSelectionStart.Line = document.TotalNumberOfLines-1;
-				newSelectionStart.Column = document.GetLineSegment(document.TotalNumberOfLines-1).Length;
-			}
-			this.SelectionStart = newSelectionStart;
-
+			
 			ClearWithoutUpdate();
 			document.CommitUpdate();
 		}
@@ -299,9 +276,7 @@ namespace TextFileEdit.Document
 			List<int> lines = new List<int>();
 			int offset = -1;
 			bool oneLine = true;
-//			PriorityQueue queue = new PriorityQueue();
 			foreach (ISelection s in selectionCollection) {
-//				ISelection s = ((ISelection)queue.Remove());
 				if (oneLine) {
 					int lineBegin = s.StartPosition.Y;
 					if (lineBegin != s.EndPosition.Y) {
@@ -313,13 +288,10 @@ namespace TextFileEdit.Document
 				offset = s.Offset;
 				document.Remove(s.Offset, s.Length);
 
-//				queue.Insert(-s.Offset, s);
+
 			}
 			ClearSelection();
-			if (offset >= 0) {
-				//             TODO:
-//				document.Caret.Offset = offset;
-			}
+			
 			if (offset != -1) {
 				if (oneLine) {
 					foreach (int i in lines) {
@@ -371,13 +343,6 @@ namespace TextFileEdit.Document
 		/// </remarks>
 		internal void Insert(int offset, string text)
 		{
-//			foreach (ISelection selection in SelectionCollection) {
-//				if (selection.Offset > offset) {
-//					selection.Offset += text.Length;
-//				} else if (selection.Offset + selection.Length > offset) {
-//					selection.Length += text.Length;
-//				}
-//			}
 		}
 		
 		/// <remarks>
@@ -385,13 +350,6 @@ namespace TextFileEdit.Document
 		/// </remarks>
 		internal void Remove(int offset, int length)
 		{
-//			foreach (ISelection selection in selectionCollection) {
-//				if (selection.Offset > offset) {
-//					selection.Offset -= length;
-//				} else if (selection.Offset + selection.Length > offset) {
-//					selection.Length -= length;
-//				}
-//			}
 		}
 		
 		/// <remarks>
@@ -399,13 +357,6 @@ namespace TextFileEdit.Document
 		/// </remarks>
 		internal void Replace(int offset, int length, string text)
 		{
-//			foreach (ISelection selection in selectionCollection) {
-//				if (selection.Offset > offset) {
-//					selection.Offset = selection.Offset - length + text.Length;
-//				} else if (selection.Offset + selection.Length > offset) {
-//					selection.Length = selection.Length - length + text.Length;
-//				}
-//			}
 		}
 		
 		public ColumnRange GetSelectionAtLine(int lineNumber)

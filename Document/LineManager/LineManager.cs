@@ -77,7 +77,6 @@ namespace TextFileEdit.Document
 		
 		public void Replace(int offset, int length, string text)
 		{
-			Debug.WriteLine("Replace offset="+offset+" length="+length+" text.Length="+text.Length);
 			int lineStart = GetLineNumberForOffset(offset);
 			int oldNumberOfLines = this.TotalNumberOfLines;
 			DeferredEventList deferredEventList = new DeferredEventList();
@@ -86,12 +85,6 @@ namespace TextFileEdit.Document
 			if (!string.IsNullOrEmpty(text)) {
 				InsertInternal(offset, text);
 			}
-//			#if DEBUG
-//			Console.WriteLine("New line collection:");
-//			Console.WriteLine(lineCollection.GetTreeAsString());
-//			Console.WriteLine("New text:");
-//			Console.WriteLine("'" + document.TextContent + "'");
-//			#endif
 			// Only fire events after RemoveInternal+InsertInternal finished completely:
 			// Otherwise we would expose inconsistent state to the event handlers.
 			RunHighlighter(lineStart, 1 + Math.Max(0, this.TotalNumberOfLines - numberOfLinesAfterRemoving));
@@ -161,6 +154,7 @@ namespace TextFileEdit.Document
 				return;
 			}
 			LineSegment firstLine = segment;
+		
 			firstLine.InsertedLinePart(offset - firstLine.Offset, ds.Offset);
 			int lastDelimiterEnd = 0;
 			while (ds != null) {
@@ -223,20 +217,7 @@ namespace TextFileEdit.Document
 			
 			int visibleLine = 0;
 			int foldEnd = 0;
-			List<FoldMarker> foldings = document.FoldingManager.GetTopLevelFoldedFoldings();
-			foreach (FoldMarker fm in foldings) {
-				if (fm.StartLine >= logicalLineNumber) {
-					break;
-				}
-				if (fm.StartLine >= foldEnd) {
-					visibleLine += fm.StartLine - foldEnd;
-					if (fm.EndLine > logicalLineNumber) {
-						return visibleLine;
-					}
-					foldEnd = fm.EndLine;
-				}
-			}
-//			Debug.Assert(logicalLineNumber >= foldEnd);
+			
 			visibleLine += logicalLineNumber - foldEnd;
 			return visibleLine;
 		}
@@ -248,19 +229,7 @@ namespace TextFileEdit.Document
 			}
 			int v = 0;
 			int foldEnd = 0;
-			List<FoldMarker> foldings = document.FoldingManager.GetTopLevelFoldedFoldings();
-			foreach (FoldMarker fm in foldings) {
-				if (fm.StartLine >= foldEnd) {
-					if (v + fm.StartLine - foldEnd >= visibleLineNumber) {
-						break;
-					}
-					v += fm.StartLine - foldEnd;
-					foldEnd = fm.EndLine;
-				}
-			}
-			// help GC
-			foldings.Clear();
-			foldings = null;
+			
 			return foldEnd + visibleLineNumber - v;
 		}
 		
