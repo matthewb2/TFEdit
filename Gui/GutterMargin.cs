@@ -137,7 +137,7 @@ namespace TextFileEdit
 					// sync the textareamousehandler mouse location
 					// (fixes problem with clicking out into a menu then back to the gutter whilst
 					// there is a selection)
-					textArea.mousepos = mousepos;
+					//textArea.mousepos = mousepos;
 
 					selectionStartPos = new TextLocation(0, realline);
 					textArea.SelectionManager.ClearSelection();

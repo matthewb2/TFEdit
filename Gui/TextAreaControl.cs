@@ -30,12 +30,6 @@ namespace TextFileEdit
 			}
 		}
 		
-		public SelectionManager SelectionManager {
-			get {
-				return textArea.SelectionManager;
-			}
-		}
-		
 		public Caret Caret {
 			get {
 				return textArea.Caret;

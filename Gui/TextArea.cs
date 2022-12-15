@@ -34,13 +34,11 @@ namespace TextFileEdit
 		/// The position where the mouse cursor was when it was hidden. Sometimes the text editor gets MouseMove
 		/// events when typing text even if the mouse is not moved.
 		/// </summary>
-		Point mouseCursorHidePosition;
 		
 		Point virtualTop        = new Point(0, 0);
 		TextAreaControl         motherTextAreaControl;
 		TextEditorControl       motherTextEditorControl;
 		
-		List<BracketHighlightingSheme> bracketshemes  = new List<BracketHighlightingSheme>();
 		
 		bool autoClearSelection = false;
 		
@@ -524,12 +522,12 @@ namespace TextFileEdit
 				
 					motherTextAreaControl = null;
 					motherTextEditorControl = null;
+					/*
 					foreach (AbstractMargin margin in leftMargins) {
 						if (margin is IDisposable)
 							(margin as IDisposable).Dispose();
 					}
-                    if (gutterMargin != null)
-                        gutterMargin.Dispose();
+                    */
 					textView.Dispose();
 				}
 			}
