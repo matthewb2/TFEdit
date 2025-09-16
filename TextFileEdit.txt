@@ -1,0 +1,145 @@
+TextFileEdit
+============
+
+Lightweight .NET Component for the Creation, Opening, Editing and Saving of Text Files
+
+Based upon ICSharpCode.TextEditor.dll from #Develop team:
+
+http://www.icsharpcode.net/OpenSource/SD/
+
+Features
+--------
+
+Line numbers
+"Invisible" character markers (end of line, tabs, spaces)
+Convert typed tabs to spaces
+Automatically create backup copy
+Hide mouse cursor when typing
+Bracket matching highlighting when typing
+Moveable line limit marker
+Variable tab spacing
+Highlight the line with the caret
+Test program
+Royalty free
+Full source code
+
+Version History
+===============
+
+Ver.		Description
+1.0.2013.02	Compiled in Visual Studio Express 2012
+1.0		First version based upon ICSharpCode.TextEditor.dll build number 3.2.0.5421
+
+
+Adding TextFileEdit to Visual Studio Express
+============================================
+
+With Visual Studio open bring up the context menu (2nd mouse button) for the Toolbox. If the Toolbox is not visible use the View menu then select Toolbox or type Ctrl-W then X.
+
+On the Toolbox context menu select "Add Tab". Give the new tab a meaningful name, for example "Text File Edit". Using Windows Explorer browse to the location of the Text File Edit control. Drag and drop the Text File Edit control (TextFileEdit.dll) onto the new tab. Alternatively use the context menu on the tab and select "Choose Items ...", when the dialog box appears (can take a while on some systems) select "Browse" and select the control.
+
+Note you need to have a open file that will accept a control for the control to be visible in the Toolbox.
+
+
+Using the Text File Edit Control
+--------------------------------
+
+The Text File Edit control is used in the same way as any other windows control. Add it to a form as you would add a normal windows control to a form. A list of properties specific to Text File Edit follows.
+
+Text File Edit Properties
+=========================
+
+It is worth while executing the Text File Edit Test Program to see these properties in action.
+
+
+AllowCaretBeyondEOL
+-------------------
+
+When set to "true" the caret (typing cursor) can be moved beyond the end of the actual line. When it goes beyond the last character it is in a screen position and not in any text. Pressing the Return (Enter) key fills the line with spaces up to the point the caret has been moved and creates a new line.
+
+
+BracketMatchingStyle
+--------------------
+
+When set to "After" pairs of brackets, () or [] or {}, are highlighted when the caret moves past them. When set to "Before" the brackets are highlighted as the caret approaches them.
+
+
+ConvertTabsToSpaces
+-------------------
+
+When set to "true and a tab is typed, the tab character is not placed into the text. Instead spaces are placed into the text, the number of spaces being equal to the "TabIndent" property.
+
+
+HideMouseCursor
+---------------
+
+When set to "true" the mouse cursor his hidden during typing.
+
+
+IndentStyle
+-----------
+
+When set to "Auto" the text on the next line will start at the same postion as the current text. The same number of tabs and spaces are added to the new line that preceed the current line. When set to "None" no indentation occurs.
+
+
+IsIconBarVisible
+----------------
+
+Shows a vertical bar on the lef hand side on to which icons can be programmatically placed on a line by line basis.
+
+
+LineViewerStyle
+---------------
+
+When set to "FullRow" the line that has the focus for typing is highlighted. When set to "None" no highlight is present on the current line.
+
+ShowEOLMarkers
+--------------
+
+When set to "true" a light marker (pilcrow character) is shown to indicate where the end of the line (carriage-return and line-feed character pair) will occur in the text file.
+
+
+ShowHRuler
+----------
+
+When set to "true" a "ruler" is drawn at the top of the text, within the control bounds, to give a visual indication of the columns.
+
+ShowInvalidLines
+----------------
+
+When set to "true" the space below the last line will have a marker to show the additional lines that can fit into the area. This markers just indicate the position of additonal lines and are not lines present in the file to be saved.
+
+
+ShowLineNumbers
+---------------
+
+When set to "true" line numbers appear in a margin at the left of the control within the control boundaries.
+
+
+ShowSpaces
+----------
+
+When set to "true" a light dot will indicate a "space" character.
+
+
+ShowTabs
+--------
+
+When set to "true" a tab character in the text is indicated by a light right pointing double angle character.
+
+ShowVRuler
+----------
+
+When set to "true" a vertical line is drawn down the control. It will be positioned at the "text column" indicated by the property "VRulerRow".The vertical line can be used as a visual guide to determine the length of lines. Sometimes it is necessary to limit the length of lines in a text file for some systems, usually to 80 or 120 characters.
+
+
+TabIndent
+---------
+
+This property determines the number of character columns to indent when a tab is pressed or a tab is present in the text. 
+
+
+VRulerRow
+---------
+
+This property determines the character column in which the vertical ruler line will be displayed.

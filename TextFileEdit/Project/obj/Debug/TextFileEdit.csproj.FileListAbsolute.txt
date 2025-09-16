@@ -1,0 +1,12 @@
+C:\Users\bests\Downloads\TFEdit\TextFileEdit\Project\bin\Debug\TextFileEdit.dll
+C:\Users\bests\Downloads\TFEdit\TextFileEdit\Project\bin\Debug\TextFileEdit.pdb
+C:\Users\bests\Downloads\TFEdit\TextFileEdit\Project\obj\Debug\TextFileEdit.csproj.CoreCompileInputs.cache
+C:\Users\bests\Downloads\TFEdit\TextFileEdit\Project\obj\Debug\TextFileEdit.dll
+C:\Users\bests\Downloads\TFEdit\TextFileEdit\Project\obj\Debug\TextFileEdit.pdb
+C:\Users\bests\Downloads\TFEdit\TextFileEdit\Project\obj\Debug\TextFileEdit.csproj.AssemblyReference.cache
+F:\TFEdit\TextFileEdit\Project\bin\Debug\TextFileEdit.dll
+F:\TFEdit\TextFileEdit\Project\bin\Debug\TextFileEdit.pdb
+F:\TFEdit\TextFileEdit\Project\obj\Debug\TextFileEdit.csproj.CoreCompileInputs.cache
+F:\TFEdit\TextFileEdit\Project\obj\Debug\TextFileEdit.dll
+F:\TFEdit\TextFileEdit\Project\obj\Debug\TextFileEdit.pdb
+F:\TFEdit\TextFileEdit\Project\obj\Debug\TextFileEdit.csproj.AssemblyReference.cache

@@ -1,0 +1,12 @@
+C:\Users\bests\Downloads\TFEdit\TFETest\bin\Debug\TFETest.exe
+C:\Users\bests\Downloads\TFEdit\TFETest\bin\Debug\TFETest.pdb
+C:\Users\bests\Downloads\TFEdit\TFETest\bin\Debug\TextFileEdit.dll
+C:\Users\bests\Downloads\TFEdit\TFETest\bin\Debug\TextFileEdit.pdb
+C:\Users\bests\Downloads\TFEdit\TFETest\obj\Debug\TFETest.csproj.AssemblyReference.cache
+C:\Users\bests\Downloads\TFEdit\TFETest\obj\Debug\TextFileEdit.TestStartUp.resources
+C:\Users\bests\Downloads\TFEdit\TFETest\obj\Debug\TextFileEdit.Properties.Resources.resources
+C:\Users\bests\Downloads\TFEdit\TFETest\obj\Debug\TFETest.csproj.GenerateResource.cache
+C:\Users\bests\Downloads\TFEdit\TFETest\obj\Debug\TFETest.csproj.CoreCompileInputs.cache
+C:\Users\bests\Downloads\TFEdit\TFETest\obj\Debug\TFETest.csproj.CopyComplete
+C:\Users\bests\Downloads\TFEdit\TFETest\obj\Debug\TFETest.exe
+C:\Users\bests\Downloads\TFEdit\TFETest\obj\Debug\TFETest.pdb
